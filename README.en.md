@@ -10,10 +10,10 @@ This is an enterprise-level backend management system based on Role-Based Access
 ![Login Page](images/image1.png)
 
 ### Dashboard
-![Dashboard](images/image2.png)
+![Dashboard](images/images2.png)
 
 ### ERP Statistics
-![ERP Statistics](images/image3.png)
+![ERP Statistics](images/images3.png)
 
 ## Technology Stack
 

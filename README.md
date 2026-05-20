@@ -10,10 +10,10 @@
 ![登录页面](images/images1.png)
 
 ### 控制台仪表盘
-![控制台仪表盘](images/image2.png)
+![控制台仪表盘](images/images2.png)
 
 ### ERP统计报表
-![ERP统计报表](images/image3.png)
+![ERP统计报表](images/images3.png)
 
 ## 技术栈
 
