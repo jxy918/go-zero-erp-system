@@ -1,0 +1,25 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.9.2
+
+package handler
+
+import (
+	"net/http"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
+	"myproject/admin/internal/logic"
+	"myproject/admin/internal/svc"
+	"myproject/admin/internal/util"
+)
+
+func GetErpDashboardHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := logic.NewGetErpDashboardLogic(r.Context(), svcCtx)
+		resp, err := l.GetErpDashboard()
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+		} else {
+			util.SuccessResponse(w, r, resp)
+		}
+	}
+}

@@ -1,0 +1,33 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.9.2
+
+package logic
+
+import (
+	"context"
+
+	"myproject/admin/internal/svc"
+	"myproject/admin/internal/types"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type DeleteCustomerLogic struct {
+	logx.Logger
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+}
+
+func NewDeleteCustomerLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteCustomerLogic {
+	return &DeleteCustomerLogic{
+		Logger: logx.WithContext(ctx),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+	}
+}
+
+func (l *DeleteCustomerLogic) DeleteCustomer(req *types.DeleteCustomerRequest) (resp *types.CustomerInfo, err error) {
+	// todo: add your logic here and delete this line
+
+	return
+}

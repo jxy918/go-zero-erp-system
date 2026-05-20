@@ -1,0 +1,2 @@
+ALTER TABLE customers ADD COLUMN code VARCHAR(50) AFTER name;
+ALTER TABLE customers ADD COLUMN `desc` TEXT AFTER phone;

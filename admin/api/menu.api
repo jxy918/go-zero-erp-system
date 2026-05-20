@@ -1,0 +1,81 @@
+type (
+	MenuInfo {
+		ID          uint             `json:"id"`
+		Name        string           `json:"name"`
+		Code        string           `json:"code"`
+		Desc        string           `json:"desc"`
+		ParentID    uint             `json:"parent_id"`
+		Path        string           `json:"path"`
+		Component   string           `json:"component"`
+		Icon        string           `json:"icon"`
+		Sort        int              `json:"sort"`
+		Status      int              `json:"status"`
+		Permissions []PermissionInfo `json:"permissions"`
+		Children    []MenuInfo       `json:"children"`
+	}
+	CreateMenuRequest {
+		Name      string `json:"name" binding:"required"`
+		Code      string `json:"code" binding:"required"`
+		Desc      string `json:"desc"`
+		ParentID  uint   `json:"parent_id"`
+		Path      string `json:"path" binding:"required"`
+		Component string `json:"component" binding:"required"`
+		Icon      string `json:"icon"`
+		Sort      int    `json:"sort"`
+		Status    int    `json:"status"`
+	}
+	UpdateMenuRequest {
+		ID        uint   `json:"id" binding:"required"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		Desc      string `json:"desc"`
+		ParentID  uint   `json:"parent_id"`
+		Path      string `json:"path"`
+		Component string `json:"component"`
+		Icon      string `json:"icon"`
+		Sort      int    `json:"sort"`
+		Status    int    `json:"status"`
+	}
+	DeleteMenuRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetMenuRequest {
+		ID uint `path:"id"`
+	}
+	ListMenuRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListMenuResponse {
+		Menus []MenuInfo `json:"menus"`
+		Total int64      `json:"total"`
+	}
+	AssignMenuPermissionsRequest {
+		MenuID        uint   `json:"menu_id" binding:"required"`
+		PermissionIDs []uint `json:"permission_ids" binding:"required"`
+	}
+)
+
+service admin-api {
+	@handler CreateMenuHandler
+	post /menu/create (CreateMenuRequest) returns (MenuInfo)
+
+	@handler UpdateMenuHandler
+	post /menu/update (UpdateMenuRequest) returns (MenuInfo)
+
+	@handler DeleteMenuHandler
+	post /menu/delete (DeleteMenuRequest) returns (EmptyResponse)
+
+	@handler GetMenuHandler
+	get /menu/get/:id (GetMenuRequest) returns (MenuInfo)
+
+	@handler ListMenuHandler
+	get /menu/list (ListMenuRequest) returns (ListMenuResponse)
+
+	@handler GetMenuTreeHandler
+	get /menu/tree returns (ListMenuResponse)
+
+	@handler AssignMenuPermissionsHandler
+	post /menu/assign-permissions (AssignMenuPermissionsRequest) returns (EmptyResponse)
+}

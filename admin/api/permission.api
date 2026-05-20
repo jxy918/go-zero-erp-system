@@ -1,0 +1,65 @@
+type (
+	PermissionInfo {
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		Desc      string `json:"desc"`
+		Type      int    `json:"type"`
+		ParentID  uint   `json:"parent_id"`
+		MenuID    uint   `json:"menu_id"`
+		Path      string `json:"path"`
+		Sort      int    `json:"sort"`
+		Status    int    `json:"status"`
+	}
+	CreatePermissionRequest {
+		Name   string `json:"name" binding:"required"`
+		Code   string `json:"code" binding:"required"`
+		Desc   string `json:"desc"`
+		Path   string `json:"path"`
+		Sort   int    `json:"sort"`
+		Status int    `json:"status"`
+		MenuID uint   `json:"menu_id"`
+	}
+	UpdatePermissionRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Name   string `json:"name"`
+		Code   string `json:"code"`
+		Desc   string `json:"desc"`
+		Path   string `json:"path"`
+		Sort   int    `json:"sort"`
+		Status int    `json:"status"`
+		MenuID uint   `json:"menu_id"`
+	}
+	DeletePermissionRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetPermissionRequest {
+		ID uint `path:"id"`
+	}
+	ListPermissionRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListPermissionResponse {
+		Permissions []PermissionInfo `json:"permissions"`
+		Total       int64            `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler CreatePermissionHandler
+	post /permission/create (CreatePermissionRequest) returns (PermissionInfo)
+
+	@handler UpdatePermissionHandler
+	post /permission/update (UpdatePermissionRequest) returns (PermissionInfo)
+
+	@handler DeletePermissionHandler
+	post /permission/delete (DeletePermissionRequest) returns (EmptyResponse)
+
+	@handler GetPermissionHandler
+	get /permission/get/:id (GetPermissionRequest) returns (PermissionInfo)
+
+	@handler ListPermissionHandler
+	get /permission/list (ListPermissionRequest) returns (ListPermissionResponse)
+}

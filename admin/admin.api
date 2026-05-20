@@ -1,0 +1,23 @@
+syntax = "v1"
+
+import (
+	"api/auth.api"
+	"api/user.api"
+	"api/role.api"
+	"api/permission.api"
+	"api/menu.api"
+	"api/product.api"
+	"api/supplier.api"
+	"api/customer.api"
+	"api/warehouse.api"
+	"api/purchase.api"
+	"api/sales.api"
+	"api/inventory.api"
+	"api/erp.api"
+	"api/activity.api"
+)
+
+type (
+	EmptyResponse  {}
+)
+

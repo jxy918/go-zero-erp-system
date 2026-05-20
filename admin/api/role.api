@@ -1,0 +1,70 @@
+type (
+	RoleInfo {
+		ID          uint             `json:"id"`
+		Name        string           `json:"name"`
+		Code        string           `json:"code"`
+		Desc        string           `json:"desc"`
+		Status      int              `json:"status"`
+		Permissions []PermissionInfo `json:"permissions"`
+		Menus       []MenuInfo       `json:"menus"`
+	}
+	CreateRoleRequest {
+		Name   string `json:"name" binding:"required"`
+		Code   string `json:"code" binding:"required"`
+		Desc   string `json:"desc"`
+		Status int    `json:"status"`
+	}
+	UpdateRoleRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Name   string `json:"name"`
+		Code   string `json:"code"`
+		Desc   string `json:"desc"`
+		Status int    `json:"status"`
+	}
+	DeleteRoleRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetRoleRequest {
+		ID uint `path:"id"`
+	}
+	ListRoleRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListRoleResponse {
+		Roles []RoleInfo `json:"roles"`
+		Total int64      `json:"total"`
+	}
+	AssignPermissionsRequest {
+		RoleID        uint   `json:"role_id" binding:"required"`
+		PermissionIDs []uint `json:"permission_ids" binding:"required"`
+	}
+	AssignMenusRequest {
+		RoleID uint   `json:"role_id" binding:"required"`
+		MenuIDs []uint `json:"menu_ids" binding:"required"`
+	}
+)
+
+service admin-api {
+	@handler CreateRoleHandler
+	post /role/create (CreateRoleRequest) returns (RoleInfo)
+
+	@handler UpdateRoleHandler
+	post /role/update (UpdateRoleRequest) returns (RoleInfo)
+
+	@handler DeleteRoleHandler
+	post /role/delete (DeleteRoleRequest) returns (EmptyResponse)
+
+	@handler GetRoleHandler
+	get /role/get/:id (GetRoleRequest) returns (RoleInfo)
+
+	@handler ListRoleHandler
+	get /role/list (ListRoleRequest) returns (ListRoleResponse)
+
+	@handler AssignPermissionsHandler
+	post /role/assign-permissions (AssignPermissionsRequest) returns (EmptyResponse)
+
+	@handler AssignMenusHandler
+	post /role/assign-menus (AssignMenusRequest) returns (EmptyResponse)
+}

@@ -1,0 +1,67 @@
+type (
+	UserInfo {
+		ID       uint       `json:"id"`
+		Username string     `json:"username"`
+		Nickname string     `json:"nickname"`
+		Email    string     `json:"email"`
+		Phone    string     `json:"phone"`
+		Status   int        `json:"status"`
+		Roles    []RoleInfo `json:"roles"`
+	}
+	CreateUserRequest {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+		Nickname string `json:"nickname"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
+		Status   int    `json:"status"`
+	}
+	UpdateUserRequest {
+		ID       uint   `json:"id" binding:"required"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Nickname string `json:"nickname"`
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
+		Status   int    `json:"status"`
+	}
+	DeleteUserRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetUserRequest {
+		ID uint `path:"id"`
+	}
+	ListUserRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Username string `form:"username,optional"`
+	}
+	ListUserResponse {
+		Users []UserInfo `json:"users"`
+		Total int64      `json:"total"`
+	}
+	AssignRolesRequest {
+		UserID  uint   `json:"user_id" binding:"required"`
+		RoleIDs []uint `json:"role_ids" binding:"required"`
+	}
+)
+
+service admin-api {
+	@handler CreateUserHandler
+	post /user/create (CreateUserRequest) returns (UserInfo)
+
+	@handler UpdateUserHandler
+	post /user/update (UpdateUserRequest) returns (UserInfo)
+
+	@handler DeleteUserHandler
+	post /user/delete (DeleteUserRequest) returns (EmptyResponse)
+
+	@handler GetUserHandler
+	get /user/get/:id (GetUserRequest) returns (UserInfo)
+
+	@handler ListUserHandler
+	get /user/list (ListUserRequest) returns (ListUserResponse)
+
+	@handler AssignRolesHandler
+	post /user/assign-roles (AssignRolesRequest) returns (EmptyResponse)
+}

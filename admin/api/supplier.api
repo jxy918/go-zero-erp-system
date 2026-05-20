@@ -1,0 +1,71 @@
+type (
+	SupplierInfo {
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		Contact   string `json:"contact"`
+		Phone     string `json:"phone"`
+		Email     string `json:"email"`
+		Address   string `json:"address"`
+		Status    int    `json:"status"`
+		Desc      string `json:"desc"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	CreateSupplierRequest {
+		Name    string `json:"name" binding:"required"`
+		Code    string `json:"code" binding:"required"`
+		Contact string `json:"contact"`
+		Phone   string `json:"phone"`
+		Email   string `json:"email"`
+		Address string `json:"address"`
+		Status  int    `json:"status"`
+		Desc    string `json:"desc"`
+	}
+	UpdateSupplierRequest {
+		ID       uint   `json:"id" binding:"required"`
+		Name     string `json:"name"`
+		Code     string `json:"code"`
+		Contact  string `json:"contact"`
+		Phone    string `json:"phone"`
+		Email    string `json:"email"`
+		Address  string `json:"address"`
+		Status   int    `json:"status"`
+		Desc     string `json:"desc"`
+	}
+	DeleteSupplierRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetSupplierRequest {
+		ID uint `path:"id"`
+	}
+	ListSupplierRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListSupplierResponse {
+		Suppliers []SupplierInfo `json:"suppliers"`
+		Total     int64          `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler CreateSupplierHandler
+	post /supplier/create (CreateSupplierRequest) returns (SupplierInfo)
+
+	@handler UpdateSupplierHandler
+	post /supplier/update (UpdateSupplierRequest) returns (SupplierInfo)
+
+	@handler DeleteSupplierHandler
+	post /supplier/delete (DeleteSupplierRequest) returns (EmptyResponse)
+
+	@handler GetSupplierHandler
+	get /supplier/get/:id (GetSupplierRequest) returns (SupplierInfo)
+
+	@handler ListSupplierHandler
+	get /supplier/list (ListSupplierRequest) returns (ListSupplierResponse)
+
+	@handler ListActiveSupplierHandler
+	get /supplier/active-list (ListSupplierRequest) returns (ListSupplierResponse)
+}

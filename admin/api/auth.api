@@ -1,0 +1,31 @@
+type (
+	LoginRequest {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
+	LoginResponse {
+		Token string   `json:"token"`
+		User  UserInfo `json:"user"`
+	}
+	LogoutRequest  {}
+	LogoutResponse {
+		Success bool `json:"success"`
+	}
+	RefreshTokenRequest {
+		Token string `json:"token" binding:"required"`
+	}
+	RefreshTokenResponse {
+		Token string `json:"token"`
+	}
+)
+
+service admin-api {
+	@handler LoginHandler
+	post /auth/login (LoginRequest) returns (LoginResponse)
+
+	@handler LogoutHandler
+	post /auth/logout (LogoutRequest) returns (LogoutResponse)
+
+	@handler RefreshTokenHandler
+	post /auth/refresh (RefreshTokenRequest) returns (RefreshTokenResponse)
+}

@@ -1,0 +1,10 @@
+SET NAMES utf8mb4;
+UPDATE menus SET name = 'ERP管理' WHERE id = 9;
+UPDATE menus SET name = '产品管理' WHERE id = 10;
+UPDATE menus SET name = '采购管理' WHERE id = 11;
+UPDATE menus SET name = '销售管理' WHERE id = 12;
+UPDATE menus SET name = '库存管理' WHERE id = 13;
+UPDATE menus SET name = '商品分类' WHERE id = 18;
+UPDATE menus SET name = '供应商管理' WHERE id = 19;
+UPDATE menus SET name = '客户管理' WHERE id = 20;
+UPDATE menus SET name = '仓库管理' WHERE id = 21;

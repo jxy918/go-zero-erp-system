@@ -1,0 +1,218 @@
+type (
+	ProductInfo {
+	ID          uint             `json:"id"`
+	Name        string           `json:"name"`
+	Code        string           `json:"code"`
+	Spec        string           `json:"spec"`
+	CategoryID  uint             `json:"category_id"`
+	Unit        string           `json:"unit"`
+	MinStock    int              `json:"min_stock"`
+	MaxStock    int              `json:"max_stock"`
+	SafetyStock int              `json:"safety_stock"`
+	CostPrice   float64          `json:"cost_price"`
+	SalePrice   float64          `json:"sale_price"`
+	Price       float64          `json:"price"`
+	Status      int              `json:"status"`
+	Desc        string           `json:"desc"`
+	Stock       int              `json:"stock"`
+	MainUnit    string           `json:"main_unit"`
+	Units       []ProductUnitInfo `json:"units"`
+	Category    ProductCategoryInfo `json:"category"`
+	CreatedAt   string           `json:"created_at"`
+	UpdatedAt   string           `json:"updated_at"`
+}
+	ProductUnit {
+		ID        uint    `json:"id"`
+		ProductID uint    `json:"product_id"`
+		Name      string  `json:"name"`
+		UnitName  string  `json:"unit_name"`
+		Ratio     float64 `json:"ratio"`
+		IsMain    int     `json:"is_main"`
+		Status    int     `json:"status"`
+		CreatedAt string  `json:"created_at"`
+		UpdatedAt string  `json:"updated_at"`
+	}
+	CreateProductRequest {
+		Name        string  `json:"name" binding:"required"`
+		Code        string  `json:"code" binding:"required"`
+		Spec        string  `json:"spec"`
+		CategoryID  uint    `json:"category_id"`
+		CostPrice   float64 `json:"cost_price"`
+		SalePrice   float64 `json:"sale_price"`
+		Price       float64 `json:"price"`
+		Unit        string  `json:"unit"`
+		MinStock    int     `json:"min_stock"`
+		MaxStock    int     `json:"max_stock"`
+		SafetyStock int     `json:"safety_stock"`
+		Status      int     `json:"status"`
+		Desc        string  `json:"desc"`
+	}
+	UpdateProductRequest {
+		ID          uint    `json:"id" binding:"required"`
+		Name        string  `json:"name"`
+		Code        string  `json:"code"`
+		Spec        string  `json:"spec"`
+		CategoryID  uint    `json:"category_id"`
+		CostPrice   float64 `json:"cost_price"`
+		SalePrice   float64 `json:"sale_price"`
+		Price       float64 `json:"price"`
+		MinStock    int     `json:"min_stock"`
+		MaxStock    int     `json:"max_stock"`
+		SafetyStock int     `json:"safety_stock"`
+		Status      int     `json:"status"`
+		Desc        string  `json:"desc"`
+	}
+	DeleteProductRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetProductRequest {
+		ID uint `path:"id"`
+	}
+	ListProductRequest {
+		Page       int    `form:"page,optional"`
+		PageSize   int    `form:"page_size,optional"`
+		Name       string `form:"name,optional"`
+		Code       string `form:"code,optional"`
+		CategoryID uint   `form:"category_id,optional"`
+	}
+	ListProductResponse {
+		Products []ProductInfo `json:"products"`
+		Total    int64         `json:"total"`
+	}
+	ProductCategoryInfo {
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		ParentID  uint   `json:"parent_id"`
+		Sort      int    `json:"sort"`
+		Status    int    `json:"status"`
+		Desc      string `json:"desc"`
+		Children  []ProductCategoryInfo `json:"children"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	CreateProductCategoryRequest {
+		Name     string `json:"name" binding:"required"`
+		Code     string `json:"code" binding:"required"`
+		ParentID uint   `json:"parent_id"`
+		Sort     int    `json:"sort"`
+		Status   int    `json:"status"`
+		Desc     string `json:"desc"`
+	}
+	UpdateProductCategoryRequest {
+		ID       uint   `json:"id" binding:"required"`
+		Name     string `json:"name"`
+		Code     string `json:"code"`
+		ParentID uint   `json:"parent_id"`
+		Sort     int    `json:"sort"`
+		Status   int    `json:"status"`
+		Desc     string `json:"desc"`
+	}
+	DeleteProductCategoryRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	ListProductCategoryRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListProductCategoryResponse {
+		Categories []ProductCategoryInfo `json:"categories"`
+		Total      int64                 `json:"total"`
+	}
+	ProductUnitRequest {
+		ProductID uint    `json:"product_id" binding:"required"`
+		Name      string  `json:"name" binding:"required"`
+		Ratio     float64 `json:"ratio" binding:"required"`
+		IsMain    int     `json:"is_main"`
+		Status    int     `json:"status"`
+	}
+	CreateProductUnitRequest {
+		ProductID uint    `json:"product_id" binding:"required"`
+		UnitName  string  `json:"unit_name"`
+		Ratio     float64 `json:"ratio" binding:"required"`
+		IsMain    int     `json:"is_main"`
+	}
+	ProductUnitInfo {
+		ID          uint    `json:"id"`
+		ProductID   uint    `json:"product_id"`
+		ProductName string  `json:"product_name"`
+		UnitName    string  `json:"unit_name"`
+		Ratio       float64 `json:"ratio"`
+		IsMain      int     `json:"is_main"`
+		CreatedAt   string  `json:"created_at"`
+		UpdatedAt   string  `json:"updated_at"`
+	}
+	UpdateProductUnitRequest {
+		ID       uint    `json:"id" binding:"required"`
+		UnitName string  `json:"unit_name"`
+		Ratio    float64 `json:"ratio"`
+		IsMain   int     `json:"is_main"`
+	}
+	DeleteProductUnitRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	ListProductUnitRequest {
+		Page        int    `form:"page,optional"`
+		PageSize    int    `form:"page_size,optional"`
+		ProductID   uint   `form:"product_id,optional"`
+		ProductName string `form:"product_name,optional"`
+	}
+	ListProductUnitResponse {
+		Units []ProductUnitInfo `json:"units"`
+		Total int64             `json:"total"`
+	}
+	GetProductUnitRequest {
+		ID uint `path:"id"`
+	}
+)
+
+service admin-api {
+	@handler CreateProductHandler
+	post /product/create (CreateProductRequest) returns (ProductInfo)
+
+	@handler UpdateProductHandler
+	post /product/update (UpdateProductRequest) returns (ProductInfo)
+
+	@handler DeleteProductHandler
+	post /product/delete (DeleteProductRequest) returns (EmptyResponse)
+
+	@handler GetProductHandler
+	get /product/get/:id (GetProductRequest) returns (ProductInfo)
+
+	@handler ListProductHandler
+	get /product/list (ListProductRequest) returns (ListProductResponse)
+
+	@handler ListActiveProductHandler
+	get /product/active-list (ListProductRequest) returns (ListProductResponse)
+
+	@handler CreateProductCategoryHandler
+	post /product/category/create (CreateProductCategoryRequest) returns (ProductCategoryInfo)
+
+	@handler UpdateProductCategoryHandler
+	post /product/category/update (UpdateProductCategoryRequest) returns (ProductCategoryInfo)
+
+	@handler DeleteProductCategoryHandler
+	post /product/category/delete (DeleteProductCategoryRequest) returns (EmptyResponse)
+
+	@handler ListProductCategoryHandler
+	get /product/category/list (ListProductCategoryRequest) returns (ListProductCategoryResponse)
+
+	@handler GetProductCategoryTreeHandler
+	get /product/category/tree returns (ListProductCategoryResponse)
+
+	@handler CreateProductUnitHandler
+	post /product/unit/create (ProductUnitRequest) returns (ProductUnit)
+
+	@handler UpdateProductUnitHandler
+	post /product/unit/update (UpdateProductUnitRequest) returns (ProductUnit)
+
+	@handler DeleteProductUnitHandler
+	post /product/unit/delete (DeleteProductUnitRequest) returns (EmptyResponse)
+
+	@handler ListProductUnitHandler
+	get /product/unit/list (ListProductUnitRequest) returns (ListProductUnitResponse)
+
+	@handler GetProductUnitHandler
+	get /product/unit/get/:id (GetProductUnitRequest) returns (ProductUnitInfo)
+}

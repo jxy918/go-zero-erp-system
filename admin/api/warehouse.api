@@ -1,0 +1,68 @@
+type (
+	WarehouseInfo {
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		Address   string `json:"address"`
+		Contact   string `json:"contact"`
+		Phone     string `json:"phone"`
+		Status    int    `json:"status"`
+		Desc      string `json:"desc"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	CreateWarehouseRequest {
+		Name    string `json:"name" binding:"required"`
+		Code    string `json:"code" binding:"required"`
+		Address string `json:"address"`
+		Contact string `json:"contact"`
+		Phone   string `json:"phone"`
+		Status  int    `json:"status"`
+		Desc    string `json:"desc"`
+	}
+	UpdateWarehouseRequest {
+		ID       uint   `json:"id" binding:"required"`
+		Name     string `json:"name"`
+		Code     string `json:"code"`
+		Address  string `json:"address"`
+		Contact  string `json:"contact"`
+		Phone    string `json:"phone"`
+		Status   int    `json:"status"`
+		Desc     string `json:"desc"`
+	}
+	DeleteWarehouseRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetWarehouseRequest {
+		ID uint `path:"id"`
+	}
+	ListWarehouseRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListWarehouseResponse {
+		Warehouses []WarehouseInfo `json:"warehouses"`
+		Total      int64           `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler CreateWarehouseHandler
+	post /warehouse/create (CreateWarehouseRequest) returns (WarehouseInfo)
+
+	@handler UpdateWarehouseHandler
+	post /warehouse/update (UpdateWarehouseRequest) returns (WarehouseInfo)
+
+	@handler DeleteWarehouseHandler
+	post /warehouse/delete (DeleteWarehouseRequest) returns (EmptyResponse)
+
+	@handler GetWarehouseHandler
+	get /warehouse/get/:id (GetWarehouseRequest) returns (WarehouseInfo)
+
+	@handler ListWarehouseHandler
+	get /warehouse/list (ListWarehouseRequest) returns (ListWarehouseResponse)
+
+	@handler ListActiveWarehouseHandler
+	get /warehouse/active-list (ListWarehouseRequest) returns (ListWarehouseResponse)
+}

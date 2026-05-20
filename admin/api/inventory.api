@@ -1,0 +1,534 @@
+type (
+	InventoryRecordInfo {
+		ID             uint   `json:"id"`
+		ProductID      uint   `json:"product_id"`
+		Product        string `json:"product"`
+		ProductCode    string `json:"product_code"`
+		Unit           string `json:"unit"`
+		WarehouseID    uint   `json:"warehouse_id"`
+		Warehouse      string `json:"warehouse"`
+		Type           int    `json:"type"`
+		TypeText       string `json:"type_text"`
+		Quantity       int    `json:"quantity"`
+		Balance        int    `json:"balance"`
+		OrderNo        string `json:"order_no"`
+		Remark         string `json:"remark"`
+		CreatedAt      string `json:"created_at"`
+		BeforeQuantity int    `json:"before_quantity"`
+		AfterQuantity  int    `json:"after_quantity"`
+	}
+	AdjustInventoryRequest {
+		ProductID   uint   `json:"product_id" binding:"required"`
+		WarehouseID uint   `json:"warehouse_id" binding:"required"`
+		Quantity    int    `json:"quantity" binding:"required"`
+		Remark      string `json:"remark"`
+	}
+	InventoryInfo {
+		ID             uint          `json:"id"`
+		ProductID      uint          `json:"product_id"`
+		Product        ProductInfo   `json:"product"`
+		WarehouseID    uint          `json:"warehouse_id"`
+		Warehouse      WarehouseInfo `json:"warehouse"`
+		Quantity       int           `json:"quantity"`
+		Type           int           `json:"type"`
+		OrderType      int           `json:"order_type"`
+		OrderID        uint          `json:"order_id"`
+		Remark         string        `json:"remark"`
+		BeforeQuantity int           `json:"before_quantity"`
+		AfterQuantity  int           `json:"after_quantity"`
+		CreatedAt      string        `json:"created_at"`
+		UpdatedAt      string        `json:"updated_at"`
+	}
+	ListInventoryRecordRequest {
+		Page         int    `form:"page,optional"`
+		PageSize     int    `form:"page_size,optional"`
+		ProductID    uint   `form:"product_id,optional"`
+		WarehouseID  uint   `form:"warehouse_id,optional"`
+		Type         int    `form:"type,optional"`
+		StartTime    string `form:"start_time,optional"`
+		EndTime      string `form:"end_time,optional"`
+	}
+	ListInventoryRecordResponse {
+		Records []InventoryRecordInfo `json:"records"`
+		Total   int64               `json:"total"`
+	}
+	CreateInventoryAdjustRequest {
+		ProductID   uint   `json:"product_id" binding:"required"`
+		WarehouseID uint   `json:"warehouse_id" binding:"required"`
+		Type        int    `json:"type" binding:"required"`
+		Quantity    int    `json:"quantity" binding:"required"`
+		Reason      string `json:"reason"`
+	}
+	ApproveInventoryAdjustRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Status int    `json:"status" binding:"required"`
+		Remark string `json:"remark"`
+		Note   string `json:"note"`
+	}
+	RejectInventoryAdjustRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Remark string `json:"remark"`
+		Note   string `json:"note"`
+	}
+	InventoryAdjustRequestInfo {
+		ID          uint        `json:"id"`
+		RequestNo   string      `json:"request_no"`
+		ProductID   uint        `json:"product_id"`
+		Product     ProductInfo `json:"product"`
+		WarehouseID uint        `json:"warehouse_id"`
+		Warehouse   WarehouseInfo `json:"warehouse"`
+		Type        int         `json:"type"`
+		TypeText    string      `json:"type_text"`
+		TypeDesc    string      `json:"type_desc"`
+		Quantity    int         `json:"quantity"`
+		BeforeQty   int         `json:"before_qty"`
+		AfterQty    int         `json:"after_qty"`
+		Status      int         `json:"status"`
+		StatusText  string      `json:"status_text"`
+		StatusDesc  string      `json:"status_desc"`
+		Reason      string      `json:"reason"`
+		Remark      string      `json:"remark"`
+		ApplicantID uint        `json:"applicant_id"`
+		Applicant   UserInfo    `json:"applicant"`
+		ApproverID  uint        `json:"approver_id"`
+		Approver    UserInfo    `json:"approver"`
+		ApproveNote string      `json:"approve_note"`
+		ApproveTime string      `json:"approve_time"`
+		CreatedAt   string      `json:"created_at"`
+	}
+	InventoryAdjustInfo {
+		ID          uint   `json:"id"`
+		ProductID   uint   `json:"product_id"`
+		Product     string `json:"product"`
+		WarehouseID uint   `json:"warehouse_id"`
+		Warehouse   string `json:"warehouse"`
+		Type        int    `json:"type"`
+		TypeText    string `json:"type_text"`
+		Quantity    int    `json:"quantity"`
+		Remark      string `json:"remark"`
+		CreatedAt   string `json:"created_at"`
+	}
+	ListInventoryAdjustRequest {
+		Page         int    `form:"page,optional"`
+		PageSize     int    `form:"page_size,optional"`
+		ProductID    uint   `form:"product_id,optional"`
+		WarehouseID  uint   `form:"warehouse_id,optional"`
+		Status       int    `form:"status,optional"`
+		StartTime    string `form:"start_time,optional"`
+		EndTime      string `form:"end_time,optional"`
+	}
+	ListInventoryAdjustResponse {
+		Requests []InventoryAdjustRequestInfo `json:"requests"`
+		Total    int64                      `json:"total"`
+	}
+	CreateInventoryCheckRequest {
+		WarehouseID uint                     `json:"warehouse_id" binding:"required"`
+		Items       []InventoryCheckItem     `json:"items"`
+		Remark      string                   `json:"remark"`
+	}
+	InventoryCheckResponse {
+		Check InventoryCheckInfo `json:"check"`
+	}
+	InventoryCheckItem {
+		ID        uint   `json:"id"`
+		ProductID uint   `json:"product_id" binding:"required"`
+		Quantity  int    `json:"quantity" binding:"required"`
+		ActualQty int    `json:"actual_qty"`
+		Remark    string `json:"remark"`
+	}
+	InventoryCheckItemUpdate {
+		ID        uint `json:"id" binding:"required"`
+		ActualQty int  `json:"actual_qty"`
+	}
+	InventoryCheckItemInfo {
+		ID        uint        `json:"id"`
+		CheckID   uint        `json:"check_id"`
+		ProductID uint        `json:"product_id"`
+		Product   ProductInfo `json:"product"`
+		Quantity  int         `json:"quantity"`
+		SystemQty int         `json:"system_qty"`
+		ActualQty int         `json:"actual_qty"`
+		DiffQty   int         `json:"diff_qty"`
+		Status    int         `json:"status"`
+		Remark    string      `json:"remark"`
+	}
+	InventoryCheckInfo {
+		ID          uint                     `json:"id"`
+		CheckNo     string                   `json:"check_no"`
+		WarehouseID uint                     `json:"warehouse_id"`
+		Warehouse   WarehouseInfo            `json:"warehouse"`
+		TotalDiff   int                      `json:"total_diff"`
+		Status      int                      `json:"status"`
+		StatusText  string                   `json:"status_text"`
+		Remark      string                   `json:"remark"`
+		Items       []InventoryCheckItemInfo `json:"items"`
+		CreatedAt   string                   `json:"created_at"`
+		UpdatedAt   string                   `json:"updated_at"`
+	}
+	InventoryCheckResult {
+		ID          uint   `json:"id"`
+		CheckID     uint   `json:"check_id"`
+		ProductID   uint   `json:"product_id"`
+		Product     string `json:"product"`
+		ProductCode string `json:"product_code"`
+		Spec        string `json:"spec"`
+		StockQty    int    `json:"stock_qty"`
+		CheckQty    int    `json:"check_qty"`
+		DiffQty     int    `json:"diff_qty"`
+		Remark      string `json:"remark"`
+	}
+	ListInventoryCheckRequest {
+		Page        int    `form:"page,optional"`
+		PageSize    int    `form:"page_size,optional"`
+		WarehouseID uint   `form:"warehouse_id,optional"`
+		Status      int    `form:"status,optional"`
+		CheckNo     string `form:"check_no,optional"`
+		StartTime   string `form:"start_time,optional"`
+		EndTime     string `form:"end_time,optional"`
+	}
+	ListInventoryData {
+		Checks []InventoryCheckInfo `json:"checks"`
+		Total  int64               `json:"total"`
+	}
+	ListInventoryCheckResponse {
+		Checks []InventoryCheckInfo `json:"checks"`
+		Total  int64               `json:"total"`
+	}
+	InventoryCheckStatusRequest {
+		ID     uint `json:"id" binding:"required"`
+		Status int  `json:"status" binding:"required"`
+	}
+	DeleteInventoryCheckRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	DeleteInventoryTransferRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	ExecuteInventoryTransferRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GenerateAdjustFromCheckRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GenerateAdjustFromCheckResponse {
+		Success     bool   `json:"success"`
+		AdjustCount int    `json:"adjust_count"`
+		AdjustIds   []uint `json:"adjust_ids"`
+		Message     string `json:"message"`
+	}
+	GetCurrentStockRequest {
+		ProductID   uint `form:"product_id"`
+		WarehouseID uint `form:"warehouse_id"`
+	}
+	GetCurrentStockResponse {
+		ProductID   uint   `json:"product_id"`
+		WarehouseID uint   `json:"warehouse_id"`
+		Quantity    int    `json:"quantity"`
+	}
+	GetInventoryCheckRequest {
+		ID uint `path:"id"`
+	}
+	GetInventoryTransferRequest {
+		ID uint `path:"id"`
+	}
+	GetInventoryHistoryRequest {
+		ProductID   uint `form:"product_id"`
+		WarehouseID uint `form:"warehouse_id"`
+	}
+	ListInventoryResponse {
+		Inventory []InventoryInfo `json:"inventory"`
+		Total     int64          `json:"total"`
+	}
+	GetInventoryRequest {
+		ID uint `path:"id"`
+	}
+	ListInventoryAlertRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		AlertType int   `form:"alert_type,optional"`
+	}
+	ListInventoryRequest {
+		Page         int    `form:"page,optional"`
+		PageSize     int    `form:"page_size,optional"`
+		ProductID    uint   `form:"product_id,optional"`
+		WarehouseID  uint   `form:"warehouse_id,optional"`
+		ProductName  string `form:"product_name,optional"`
+	}
+	PurchaseInboundRequest {
+		OrderID     uint `json:"order_id" binding:"required"`
+		WarehouseID uint `json:"warehouse_id"`
+	}
+	SalesOutboundRequest {
+		OrderID     uint `json:"order_id" binding:"required"`
+		WarehouseID uint `json:"warehouse_id" binding:"required"`
+	}
+	SubmitInventoryCheckRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Remark string `json:"remark"`
+	}
+	UpdateInventoryCheckRequest {
+		ID     uint                   `json:"id" binding:"required"`
+		Items  []InventoryCheckItemUpdate `json:"items"`
+		Remark string                 `json:"remark"`
+	}
+	OrderLogInfo {
+		ID               uint   `json:"id"`
+		OrderID          uint   `json:"order_id"`
+		OrderType        int    `json:"order_type"`
+		OrderTypeDesc    string `json:"order_type_desc"`
+		BeforeStatus     int    `json:"before_status"`
+		BeforeStatusDesc string `json:"before_status_desc"`
+		AfterStatus      int    `json:"after_status"`
+		AfterStatusDesc  string `json:"after_status_desc"`
+		OperatorID       uint   `json:"operator_id"`
+		OperatorName     string `json:"operator_name"`
+		Remark           string `json:"remark"`
+		CreatedAt        string `json:"created_at"`
+	}
+	ListOrderLogRequest {
+		OrderID     uint   `form:"order_id,optional"`
+		OrderType   int    `form:"order_type,optional"`
+		OperatorID  uint   `form:"operator_id,optional"`
+		StartTime   string `form:"start_time,optional"`
+		EndTime     string `form:"end_time,optional"`
+	}
+	ListOrderLogResponse {
+		Logs  []OrderLogInfo `json:"logs"`
+		Total int64          `json:"total"`
+	}
+	InventoryTransferRequest {
+		FromWarehouseID uint                   `json:"from_warehouse_id" binding:"required"`
+		ToWarehouseID   uint                   `json:"to_warehouse_id" binding:"required"`
+		Items           []InventoryTransferItem `json:"items" binding:"required"`
+		Remark          string                 `json:"remark"`
+	}
+	CreateInventoryTransferRequest {
+		FromWarehouseID uint   `json:"from_warehouse_id" binding:"required"`
+		ToWarehouseID   uint   `json:"to_warehouse_id" binding:"required"`
+		ProductID       uint   `json:"product_id" binding:"required"`
+		Quantity        int    `json:"quantity" binding:"required"`
+		Remark          string `json:"remark"`
+	}
+	InventoryTransferItem {
+		ProductID uint   `json:"product_id" binding:"required"`
+		Quantity  int    `json:"quantity" binding:"required"`
+		Remark    string `json:"remark"`
+	}
+	InventoryTransferInfo {
+		ID              uint                   `json:"id"`
+		TransferNo      string                 `json:"transfer_no"`
+		FromWarehouseID uint                   `json:"from_warehouse_id"`
+		FromWarehouse   WarehouseInfo          `json:"from_warehouse"`
+		ToWarehouseID   uint                   `json:"to_warehouse_id"`
+		ToWarehouse     WarehouseInfo          `json:"to_warehouse"`
+		ProductID       uint                   `json:"product_id"`
+		Product         ProductInfo            `json:"product"`
+		Quantity        int                    `json:"quantity"`
+		Status          int                    `json:"status"`
+		StatusText      string                 `json:"status_text"`
+		Remark          string                 `json:"remark"`
+		Items           []InventoryTransferItemInfo `json:"items"`
+		CreatedAt       string                 `json:"created_at"`
+		CreatedBy       uint                   `json:"created_by"`
+		CreatedByName   string                 `json:"created_by_name"`
+		AuditedBy       uint                   `json:"audited_by"`
+		AuditedByName   string                 `json:"audited_by_name"`
+		AuditedAt       string                 `json:"audited_at"`
+		ExecutedBy      uint                   `json:"executed_by"`
+		ExecutedByName  string                 `json:"executed_by_name"`
+		ExecutedAt      string                 `json:"executed_at"`
+		UpdatedAt       string                 `json:"updated_at"`
+	}
+	InventoryTransferItemInfo {
+		ID         uint   `json:"id"`
+		TransferID uint   `json:"transfer_id"`
+		ProductID  uint   `json:"product_id"`
+		Product    string `json:"product"`
+		ProductCode string `json:"product_code"`
+		Spec       string `json:"spec"`
+		Quantity   int    `json:"quantity"`
+		Remark     string `json:"remark"`
+	}
+	ListInventoryTransferRequest {
+		Page            int    `form:"page,optional"`
+		PageSize        int    `form:"page_size,optional"`
+		TransferNo      string `form:"transfer_no,optional"`
+		FromWarehouseID int    `form:"from_warehouse_id,optional"`
+		ToWarehouseID   int    `form:"to_warehouse_id,optional"`
+		ProductID       int    `form:"product_id,optional"`
+		Status          int    `form:"status,optional"`
+		StartTime       string `form:"start_time,optional"`
+		EndTime         string `form:"end_time,optional"`
+	}
+	ListInventoryTransferData {
+		Transfers []InventoryTransferInfo `json:"transfers"`
+		Total     int64                  `json:"total"`
+	}
+	ListInventoryTransferResponse {
+		Transfers []InventoryTransferInfo `json:"transfers"`
+		Total     int64                  `json:"total"`
+	}
+	InventoryTransferStatusRequest {
+		ID     uint `json:"id" binding:"required"`
+		Status int  `json:"status" binding:"required"`
+	}
+	AuditInventoryTransferRequest {
+		ID     uint   `json:"id" binding:"required"`
+		Status int    `json:"status" binding:"required"`
+		Remark string `json:"remark"`
+	}
+	UpdateInventoryTransferRequest {
+		ID              uint   `json:"id" binding:"required"`
+		FromWarehouseID uint   `json:"from_warehouse_id"`
+		ToWarehouseID   uint   `json:"to_warehouse_id"`
+		ProductID       uint   `json:"product_id"`
+		Quantity        int    `json:"quantity"`
+		Remark          string `json:"remark"`
+	}
+	InventoryTransferResponse {
+		Transfer InventoryTransferInfo `json:"transfer"`
+	}
+	ListInventoryAlertResponse {
+		Code    int                          `json:"code"`
+		Data    []InventoryAlertInfo         `json:"data"`
+		Message string                       `json:"message"`
+		Alerts  []InventoryAlertInfo         `json:"alerts"`
+		Total   int64                        `json:"total"`
+	}
+	InventoryAlertInfo {
+		ID          uint   `json:"id"`
+		ProductID   uint   `json:"product_id"`
+		Product     string `json:"product"`
+		ProductName string `json:"product_name"`
+		ProductCode string `json:"product_code"`
+		Spec        string `json:"spec"`
+		WarehouseID uint   `json:"warehouse_id"`
+		Warehouse   string `json:"warehouse"`
+		Quantity    int    `json:"quantity"`
+		MinStock    int    `json:"min_stock"`
+		MaxStock    int    `json:"max_stock"`
+		SafetyStock int    `json:"safety_stock"`
+		AlertLevel  int    `json:"alert_level"`
+		AlertType   int    `json:"alert_type"`
+		CreatedAt   string `json:"created_at"`
+	}
+	WarehouseInventoryInfo {
+		ID          uint   `json:"id"`
+		ProductID   uint   `json:"product_id"`
+		Product     string `json:"product"`
+		ProductCode string `json:"product_code"`
+		Spec        string `json:"spec"`
+		WarehouseID uint   `json:"warehouse_id"`
+		Warehouse   string `json:"warehouse"`
+		Quantity    int    `json:"quantity"`
+		UpdatedAt   string `json:"updated_at"`
+	}
+	ListWarehouseInventoryRequest {
+		Page         int    `form:"page,optional"`
+		PageSize     int    `form:"page_size,optional"`
+		ProductID    uint   `form:"product_id,optional"`
+		WarehouseID  uint   `form:"warehouse_id,optional"`
+	}
+	ListWarehouseInventoryResponse {
+		Inventories []WarehouseInventoryInfo `json:"inventories"`
+		Total       int64                   `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler ListInventoryRecordHandler
+	get /inventory/record/list (ListInventoryRecordRequest) returns (ListInventoryRecordResponse)
+
+	@handler AdjustInventoryHandler
+	post /inventory/adjust (AdjustInventoryRequest) returns (InventoryInfo)
+
+	@handler CreateInventoryAdjustHandler
+	post /inventory/adjust/create (CreateInventoryAdjustRequest) returns (InventoryAdjustInfo)
+
+	@handler ApproveInventoryAdjustRequestHandler
+	post /inventory/adjust/approve (ApproveInventoryAdjustRequest) returns (InventoryAdjustRequestInfo)
+
+	@handler RejectInventoryAdjustRequestHandler
+	post /inventory/adjust/reject (RejectInventoryAdjustRequest) returns (InventoryAdjustRequestInfo)
+
+	@handler ListInventoryAdjustHandler
+	get /inventory/adjust/list (ListInventoryAdjustRequest) returns (ListInventoryAdjustResponse)
+
+	@handler CreateInventoryCheckHandler
+	post /inventory/check/create (CreateInventoryCheckRequest) returns (InventoryCheckResponse)
+
+	@handler GetInventoryCheckHandler
+	get /inventory/check/get/:id (GetInventoryCheckRequest) returns (InventoryCheckResponse)
+
+	@handler ListInventoryCheckHandler
+	get /inventory/check/list (ListInventoryCheckRequest) returns (ListInventoryCheckResponse)
+
+	@handler UpdateInventoryCheckHandler
+	post /inventory/check/update (UpdateInventoryCheckRequest) returns (InventoryCheckResponse)
+
+	@handler SubmitInventoryCheckHandler
+	post /inventory/check/submit (SubmitInventoryCheckRequest) returns (InventoryCheckResponse)
+
+	@handler UpdateInventoryCheckStatusHandler
+	post /inventory/check/status (InventoryCheckStatusRequest) returns (EmptyResponse)
+
+	@handler DeleteInventoryCheckHandler
+	post /inventory/check/delete (DeleteInventoryCheckRequest) returns (EmptyResponse)
+
+	@handler CreateInventoryTransferHandler
+	post /inventory/transfer/create (CreateInventoryTransferRequest) returns (InventoryTransferResponse)
+
+	@handler GetInventoryTransferHandler
+	get /inventory/transfer/get/:id (GetInventoryTransferRequest) returns (InventoryTransferResponse)
+
+	@handler ListInventoryTransferHandler
+	get /inventory/transfer/list (ListInventoryTransferRequest) returns (ListInventoryTransferResponse)
+
+	@handler UpdateInventoryTransferHandler
+	post /inventory/transfer/update (UpdateInventoryTransferRequest) returns (InventoryTransferResponse)
+
+	@handler AuditInventoryTransferHandler
+	post /inventory/transfer/audit (AuditInventoryTransferRequest) returns (InventoryTransferResponse)
+
+	@handler ExecuteInventoryTransferHandler
+	post /inventory/transfer/execute (ExecuteInventoryTransferRequest) returns (InventoryTransferResponse)
+
+	@handler UpdateInventoryTransferStatusHandler
+	post /inventory/transfer/status (InventoryTransferStatusRequest) returns (EmptyResponse)
+
+	@handler DeleteInventoryTransferHandler
+	post /inventory/transfer/delete (DeleteInventoryTransferRequest) returns (EmptyResponse)
+
+	@handler ListWarehouseInventoryHandler
+	get /inventory/warehouse/list (ListWarehouseInventoryRequest) returns (ListWarehouseInventoryResponse)
+
+	@handler ListInventoryHandler
+	get /inventory/list (ListInventoryRequest) returns (ListInventoryResponse)
+
+	@handler GetInventoryHandler
+	get /inventory/get/:id (GetInventoryRequest) returns (InventoryInfo)
+
+	@handler ListInventoryAlertHandler
+	get /inventory/alert/list (ListInventoryAlertRequest) returns (ListInventoryAlertResponse)
+
+	@handler CheckInventoryAlertHandler
+	get /inventory/alert/check returns (EmptyResponse)
+
+	@handler ListOrderLogHandler
+	get /inventory/order-log/list (ListOrderLogRequest) returns (ListOrderLogResponse)
+
+	@handler PurchaseInboundHandler
+	post /inventory/purchase-inbound (PurchaseInboundRequest) returns (EmptyResponse)
+
+	@handler SalesOutboundHandler
+	post /inventory/sales-outbound (SalesOutboundRequest) returns (EmptyResponse)
+
+	@handler GetCurrentStockHandler
+	get /inventory/current-stock (GetCurrentStockRequest) returns (GetCurrentStockResponse)
+
+	@handler GetInventoryHistoryHandler
+	get /inventory/history (GetInventoryHistoryRequest) returns (ListInventoryRecordResponse)
+
+	@handler GenerateAdjustFromCheckHandler
+	post /inventory/generate-adjust-from-check (GenerateAdjustFromCheckRequest) returns (GenerateAdjustFromCheckResponse)
+}

@@ -1,0 +1,104 @@
+type (
+	SalesOrderInfo {
+		ID          uint                  `json:"id"`
+		OrderNo     string                `json:"order_no"`
+		CustomerID  uint                  `json:"customer_id"`
+		Customer    CustomerInfo          `json:"customer"`
+		WarehouseID uint                  `json:"warehouse_id"`
+		Warehouse   WarehouseInfo         `json:"warehouse"`
+		TotalAmount float64               `json:"total_amount"`
+		Status      int                   `json:"status"`
+		StatusText  string                `json:"status_text"`
+		Remark      string                `json:"remark"`
+		Items       []SalesOrderItemInfo  `json:"items"`
+		CreatedAt   string                `json:"created_at"`
+		UpdatedAt   string                `json:"updated_at"`
+	}
+	SalesOrderItem {
+		ID         uint    `json:"id"`
+		OrderID    uint    `json:"order_id"`
+		ProductID  uint    `json:"product_id"`
+		Product    ProductInfo `json:"product"`
+		ProductCode string `json:"product_code"`
+		Spec       string  `json:"spec"`
+		UnitID     uint    `json:"unit_id"`
+		UnitName   string  `json:"unit_name"`
+		Ratio      float64 `json:"ratio"`
+		BaseQty    int     `json:"base_qty"`
+		Quantity   int     `json:"quantity"`
+		Price      float64 `json:"price"`
+		UnitPrice  float64 `json:"unit_price"`
+		Amount     float64 `json:"amount"`
+	}
+	SalesOrderItemInfo {
+		ID         uint        `json:"id"`
+		OrderID    uint        `json:"order_id"`
+		ProductID  uint        `json:"product_id"`
+		Product    ProductInfo `json:"product"`
+		UnitID     uint        `json:"unit_id"`
+		UnitName   string      `json:"unit_name"`
+		Ratio      int         `json:"ratio"`
+		Quantity   int         `json:"quantity"`
+		BaseQty    int         `json:"base_qty"`
+		Price      float64     `json:"price"`
+		UnitPrice  float64     `json:"unit_price"`
+		Amount     float64     `json:"amount"`
+	}
+	CreateSalesOrderRequest {
+		CustomerID  uint                `json:"customer_id" binding:"required"`
+		WarehouseID uint                `json:"warehouse_id" binding:"required"`
+		Remark      string              `json:"remark"`
+		Items       []SalesOrderItem    `json:"items" binding:"required"`
+	}
+	UpdateSalesOrderRequest {
+		ID          uint                `json:"id" binding:"required"`
+		CustomerID  uint                `json:"customer_id"`
+		WarehouseID uint                `json:"warehouse_id"`
+		Status      int                 `json:"status"`
+		Remark      string              `json:"remark"`
+		Items       []SalesOrderItem    `json:"items"`
+	}
+	DeleteSalesOrderRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetSalesOrderRequest {
+		ID uint `path:"id"`
+	}
+	ListSalesOrderRequest {
+		Page         int    `form:"page,optional"`
+		PageSize     int    `form:"page_size,optional"`
+		OrderNo      string `form:"order_no,optional"`
+		CustomerID   uint   `form:"customer_id,optional"`
+		Status       int    `form:"status,optional"`
+		StartTime    string `form:"start_time,optional"`
+		EndTime      string `form:"end_time,optional"`
+	}
+	ListSalesOrderResponse {
+		Orders []SalesOrderInfo `json:"orders"`
+		Total  int64            `json:"total"`
+	}
+	SalesOrderStatusRequest {
+		ID     uint `json:"id" binding:"required"`
+		Status int  `json:"status" binding:"required"`
+	}
+)
+
+service admin-api {
+	@handler CreateSalesOrderHandler
+	post /sales/order/create (CreateSalesOrderRequest) returns (SalesOrderInfo)
+
+	@handler UpdateSalesOrderHandler
+	post /sales/order/update (UpdateSalesOrderRequest) returns (SalesOrderInfo)
+
+	@handler DeleteSalesOrderHandler
+	post /sales/order/delete (DeleteSalesOrderRequest) returns (EmptyResponse)
+
+	@handler GetSalesOrderHandler
+	get /sales/order/get/:id (GetSalesOrderRequest) returns (SalesOrderInfo)
+
+	@handler ListSalesOrderHandler
+	get /sales/order/list (ListSalesOrderRequest) returns (ListSalesOrderResponse)
+
+	@handler UpdateSalesOrderStatusHandler
+	post /sales/order/status (SalesOrderStatusRequest) returns (EmptyResponse)
+}

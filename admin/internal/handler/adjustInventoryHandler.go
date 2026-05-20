@@ -1,0 +1,32 @@
+package handler
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"myproject/admin/internal/logic"
+	"myproject/admin/internal/svc"
+	"myproject/admin/internal/types"
+	"myproject/admin/internal/util"
+)
+
+func AdjustInventoryHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		var req types.AdjustInventoryRequest
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&req); err != nil {
+			util.ErrorResponse(w, r, 400, err.Error())
+			return
+		}
+
+		l := logic.NewAdjustInventoryLogic(r.Context(), svcCtx)
+		resp, err := l.AdjustInventory(&req)
+		if err != nil {
+			util.ErrorResponse(w, r, 500, err.Error())
+		} else {
+			util.SuccessResponse(w, r, resp)
+		}
+	}
+}

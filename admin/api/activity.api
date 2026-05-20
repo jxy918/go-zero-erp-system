@@ -1,0 +1,31 @@
+type (
+	ActivityInfo {
+		ID        uint   `json:"id"`
+		UserID    uint   `json:"user_id"`
+		Username  string `json:"username"`
+		Action    string `json:"action"`
+		Module    string `json:"module"`
+		Content   string `json:"content"`
+		URL       string `json:"url"`
+		IP        string `json:"ip"`
+		CreatedAt string `json:"created_at"`
+	}
+	ListActivityRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		UserID   uint   `form:"user_id,optional"`
+		Username string `form:"username,optional"`
+		Module   string `form:"module,optional"`
+		StartTime string `form:"start_time,optional"`
+		EndTime   string `form:"end_time,optional"`
+	}
+	ListActivityResponse {
+		Activities []ActivityInfo `json:"activities"`
+		Total      int64          `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler ListActivityHandler
+	get /activity/list (ListActivityRequest) returns (ListActivityResponse)
+}

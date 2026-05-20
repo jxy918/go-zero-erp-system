@@ -1,0 +1,116 @@
+type (
+	ErpDashboardResponse {
+		TotalProducts  int      `json:"total_products"`
+		TotalSuppliers int      `json:"total_suppliers"`
+		TotalCustomers int      `json:"total_customers"`
+		TotalOrders    int      `json:"total_orders"`
+	}
+	ErpTrendRequest {
+		Days int `form:"days,optional"`
+	}
+	ErpTrendResponse {
+		Dates         []string  `json:"dates"`
+		PurchaseData  []float64 `json:"purchase_data"`
+		SalesData     []float64 `json:"sales_data"`
+	}
+	ErpOrderStatusRequest {
+		Type string `form:"type,optional"`
+	}
+	ErpOrderStatusResponse {
+		Pending   int `json:"pending"`
+		Approved  int `json:"approved"`
+		Completed int `json:"completed"`
+		Cancelled int `json:"cancelled"`
+	}
+	ErpInventoryAlertResponse {
+		ID           uint   `json:"id"`
+		ProductID    uint   `json:"product_id"`
+		ProductName  string `json:"product_name"`
+		ProductCode  string `json:"product_code"`
+		WarehouseID  uint   `json:"warehouse_id"`
+		Warehouse    string `json:"warehouse"`
+		Quantity     int    `json:"quantity"`
+		MinStock     int    `json:"min_stock"`
+		MaxStock     int    `json:"max_stock"`
+		SafetyStock  int    `json:"safety_stock"`
+		AlertType    int    `json:"alert_type"`
+		AlertLevel   int    `json:"alert_level"`
+		CreatedAt    string `json:"created_at"`
+	}
+	ListErpInventoryAlertRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListErpInventoryAlertResponse {
+		Alerts []ErpInventoryAlertResponse `json:"alerts"`
+		Total  int64                       `json:"total"`
+	}
+	ErpTodoDataResponse {
+		PendingCheckOrders     int `json:"pending_check_orders"`
+		PendingAdjustRequests  int `json:"pending_adjust_requests"`
+		PendingTransfers       int `json:"pending_transfers"`
+		PendingPurchases       int `json:"pending_purchases"`
+		PendingSales           int `json:"pending_sales"`
+	}
+	ErpBusinessResponse {
+		SupplierCount        int `json:"supplier_count"`
+		CustomerCount        int `json:"customer_count"`
+		ActiveSupplierCount  int `json:"active_supplier_count"`
+		ActiveCustomerCount  int `json:"active_customer_count"`
+		ProductCount         int `json:"product_count"`
+		WarehouseCount       int `json:"warehouse_count"`
+		LowStockProductCount int `json:"low_stock_product_count"`
+	}
+	ErpOverviewResponse {
+		PurchaseAmount float64 `json:"purchase_amount"`
+		SalesAmount    float64 `json:"sales_amount"`
+		TotalInventory int     `json:"total_inventory"`
+		TotalOrders    int     `json:"total_orders"`
+		UserCount      int64   `json:"user_count"`
+		ProductCount   int64   `json:"product_count"`
+	}
+	ErpTodoData {
+		PendingCheckOrders     int `json:"pending_check_orders"`
+		PendingAdjustRequests  int `json:"pending_adjust_requests"`
+		PendingTransfers       int `json:"pending_transfers"`
+		PendingPurchases       int `json:"pending_purchases"`
+		PendingSales           int `json:"pending_sales"`
+	}
+	ErpTopProductResponse {
+		Rank         int     `json:"rank"`
+		ProductName  string  `json:"product_name"`
+		Quantity     int     `json:"quantity"`
+		Amount       float64 `json:"amount"`
+	}
+	InitDataResponse {
+		Success bool   `json:"success"`
+		Message string `json:"message"`
+	}
+)
+
+service admin-api {
+	@handler GetErpDashboardHandler
+	get /erp/statistics/dashboard returns (ErpDashboardResponse)
+
+	@handler GetErpOverviewHandler
+	get /erp/statistics/overview returns (ErpOverviewResponse)
+
+	@handler GetErpTrendHandler
+	get /erp/statistics/trend (ErpTrendRequest) returns (ErpTrendResponse)
+
+	@handler GetErpOrderStatusHandler
+	get /erp/statistics/order-status (ErpOrderStatusRequest) returns (ErpOrderStatusResponse)
+
+	@handler GetErpInventoryAlertHandler
+	get /erp/statistics/inventory-alert returns (ListErpInventoryAlertResponse)
+
+	@handler GetErpTopProductsHandler
+	get /erp/statistics/top-products returns ([]ErpTopProductResponse)
+
+	@handler GetErpBusinessHandler
+	get /erp/statistics/business returns (ErpBusinessResponse)
+
+	@handler GetErpTodoDataHandler
+	get /erp/statistics/todo-data returns (ErpTodoDataResponse)
+}

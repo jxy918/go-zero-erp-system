@@ -1,0 +1,71 @@
+type (
+	CustomerInfo {
+		ID        uint   `json:"id"`
+		Name      string `json:"name"`
+		Code      string `json:"code"`
+		Contact   string `json:"contact"`
+		Phone     string `json:"phone"`
+		Email     string `json:"email"`
+		Address   string `json:"address"`
+		Status    int    `json:"status"`
+		Desc      string `json:"desc"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	}
+	CreateCustomerRequest {
+		Name    string `json:"name" binding:"required"`
+		Code    string `json:"code" binding:"required"`
+		Contact string `json:"contact"`
+		Phone   string `json:"phone"`
+		Email   string `json:"email"`
+		Address string `json:"address"`
+		Status  int    `json:"status"`
+		Desc    string `json:"desc"`
+	}
+	UpdateCustomerRequest {
+		ID       uint   `json:"id" binding:"required"`
+		Name     string `json:"name"`
+		Code     string `json:"code"`
+		Contact  string `json:"contact"`
+		Phone    string `json:"phone"`
+		Email    string `json:"email"`
+		Address  string `json:"address"`
+		Status   int    `json:"status"`
+		Desc     string `json:"desc"`
+	}
+	DeleteCustomerRequest {
+		ID uint `json:"id" binding:"required"`
+	}
+	GetCustomerRequest {
+		ID uint `path:"id"`
+	}
+	ListCustomerRequest {
+		Page     int    `form:"page,optional"`
+		PageSize int    `form:"page_size,optional"`
+		Name     string `form:"name,optional"`
+	}
+	ListCustomerResponse {
+		Customers []CustomerInfo `json:"customers"`
+		Total     int64          `json:"total"`
+	}
+)
+
+service admin-api {
+	@handler CreateCustomerHandler
+	post /customer/create (CreateCustomerRequest) returns (CustomerInfo)
+
+	@handler UpdateCustomerHandler
+	post /customer/update (UpdateCustomerRequest) returns (CustomerInfo)
+
+	@handler DeleteCustomerHandler
+	post /customer/delete (DeleteCustomerRequest) returns (EmptyResponse)
+
+	@handler GetCustomerHandler
+	get /customer/get/:id (GetCustomerRequest) returns (CustomerInfo)
+
+	@handler ListCustomerHandler
+	get /customer/list (ListCustomerRequest) returns (ListCustomerResponse)
+
+	@handler ListActiveCustomerHandler
+	get /customer/active-list (ListCustomerRequest) returns (ListCustomerResponse)
+}

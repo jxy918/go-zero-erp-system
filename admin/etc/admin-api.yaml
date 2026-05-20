@@ -1,0 +1,12 @@
+Name: admin-api
+Host: 0.0.0.0
+Port: 8001
+
+# 数据库配置
+DB:
+  DataSource: root:root@tcp(127.0.0.1:3306)/admin_erp_system?charset=utf8mb4&parseTime=True&loc=Local
+
+# JWT配置
+JWT:
+  AccessSecret: your-secret-key
+  AccessExpire: 86400
