@@ -153,7 +153,7 @@ npm run build                  # Build for production
 ### Database Configuration
 Modify `admin/etc/admin-api.yaml`:
 ```yaml
-DataSource: root:root@tcp(127.0.0.1:3306)/admin_system?charset=utf8mb4&parseTime=True&loc=Local
+DataSource: root:root@tcp(127.0.0.1:3306)/admin_erp_system?charset=utf8mb4&parseTime=True&loc=Local
 ```
 
 ### Initialize Data

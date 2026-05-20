@@ -153,7 +153,7 @@ npm run build                  # 构建生产版本
 ### 数据库配置
 修改 `admin/etc/admin-api.yaml`：
 ```yaml
-DataSource: root:root@tcp(127.0.0.1:3306)/admin_system?charset=utf8mb4&parseTime=True&loc=Local
+DataSource: root:root@tcp(127.0.0.1:3306)/admin_erp_system?charset=utf8mb4&parseTime=True&loc=Local
 ```
 
 ### 初始化数据
