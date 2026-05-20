@@ -318,7 +318,25 @@ func createInventoryTransfersTable() error {
 func migrateDatabase() error {
 	log.Println("🔄 开始执行数据库迁移...")
 
-	// 0. 删除 products.stock 字段（如果存在）
+	// 0. 使用 GORM AutoMigrate 自动同步所有核心模型结构
+	log.Println("📦 执行 AutoMigrate 同步核心表结构...")
+	if err := DB.AutoMigrate(
+		&User{}, &Role{}, &Permission{}, &Menu{},
+		&UserRole{}, &RolePermission{}, &RoleMenu{}, &MenuPermission{},
+		&Activity{},
+		&Category{}, &Product{}, &ProductUnit{},
+		&Supplier{}, &Customer{}, &Warehouse{},
+		&PurchaseOrder{}, &PurchaseOrderItem{},
+		&SalesOrder{}, &SalesOrderItem{},
+		&InventoryRecord{}, &WarehouseInventory{}, &InventoryChange{},
+		&InventoryAdjustRequest{},
+	); err != nil {
+		log.Printf("⚠️ AutoMigrate 失败: %v", err)
+	} else {
+		log.Println("✅ AutoMigrate 核心表同步完成")
+	}
+
+	// 1. 删除 products.stock 字段（如果存在）
 	if err := dropColumnIfExists("products", "stock"); err != nil {
 		log.Printf("⚠️ 删除 products.stock 字段: %v", err)
 	} else {

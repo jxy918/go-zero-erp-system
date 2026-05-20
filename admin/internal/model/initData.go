@@ -8,13 +8,13 @@ import (
 
 // InitData 初始化默认数据（手动调用接口触发）
 func InitData() error {
-	log.Println("🔴 InitData() 被调用")
+	log.Println("📦 InitData() 被调用")
 	return doInitData()
 }
 
 // doInitData 执行实际的初始化逻辑
 func doInitData() error {
-	log.Println("🔴 doInitData() 被调用")
+	log.Println("📦 doInitData() 被调用")
 	// 1. 快速检查是否已初始化（通过检查管理员用户）
 	var userCount int64
 	DB.Model(&User{}).Count(&userCount)
@@ -23,19 +23,9 @@ func doInitData() error {
 		// 快速路径：数据已存在，只做必要的后台维护
 		log.Println("📦 检测到数据已初始化，执行后台维护...")
 
-		// 快速修复权限路径
-		if err := quickFixPermissionPaths(); err != nil {
-			log.Printf("⚠️ 权限路径修复: %v", err)
-		}
-
-		// 快速修复权限code（只检查不存在的）
-		if err := quickFixPermissionCodes(); err != nil {
-			log.Printf("⚠️ 权限修复: %v", err)
-		}
-
-		// 快速同步菜单权限关联
-		if err := quickSyncMenuPermissions(); err != nil {
-			log.Printf("⚠️ 菜单权限同步: %v", err)
+		// 确保缺失的菜单被创建
+		if err := ensureMissingMenus(); err != nil {
+			log.Printf("⚠️ 缺失菜单创建: %v", err)
 		}
 
 		// 确保管理员角色有所有菜单
@@ -46,11 +36,6 @@ func doInitData() error {
 		// 确保管理员角色有所有权限
 		if err := ensureAdminPermissions(); err != nil {
 			log.Printf("⚠️ 管理员权限同步: %v", err)
-		}
-
-		// 确保缺失的菜单被创建
-		if err := ensureMissingMenus(); err != nil {
-			log.Printf("⚠️ 缺失菜单创建: %v", err)
 		}
 
 		// 确保测试角色存在
@@ -370,96 +355,21 @@ func doInitData() error {
 }
 
 // quickFixPermissionPaths 快速修复权限路径（确保与路由一致）
+// 已废弃：权限路径现在在初始化时直接设置正确，不再需要修复
 func quickFixPermissionPaths() error {
-	log.Println("🔴 quickFixPermissionPaths() 被调用")
-	pathFixes := []struct {
-		oldPath string
-		newPath string
-	}{
-		// 产品分类权限路径修复
-		{"/category/list", "/product/category/list"},
-		{"/category/create", "/product/category/create"},
-		{"/category/update", "/product/category/update"},
-		{"/category/delete", "/product/category/delete"},
-	}
-
-	for _, fix := range pathFixes {
-		result := DB.Model(&Permission{}).Where("path = ?", fix.oldPath).Update("path", fix.newPath)
-		if result.Error != nil {
-			log.Printf("⚠️ 修复路径失败 %s -> %s: %v", fix.oldPath, fix.newPath, result.Error)
-		} else if result.RowsAffected > 0 {
-			log.Printf("✅ 修复路径: %s -> %s (影响 %d 条)", fix.oldPath, fix.newPath, result.RowsAffected)
-		}
-	}
 	return nil
 }
 
 // quickFixPermissionCodes 快速修复权限code
+// 已废弃：权限 code 现在在初始化时直接设置正确，不再需要修复
 func quickFixPermissionCodes() error {
-	// 只检查缺失的权限code并修复
-	permCodes := []struct {
-		name string
-		code string
-	}{
-		{"创建用户", "btn_user_create"},
-		{"编辑用户", "btn_user_update"},
-		{"删除用户", "btn_user_delete"},
-		{"分配角色", "btn_user_assign"},
-		{"创建角色", "btn_role_create"},
-		{"编辑角色", "btn_role_update"},
-		{"删除角色", "btn_role_delete"},
-		{"分配权限", "btn_role_assign"},
-		{"分配菜单", "btn_role_assign_menus"},
-		{"创建权限", "btn_permission_create"},
-		{"编辑权限", "btn_permission_update"},
-		{"删除权限", "btn_permission_delete"},
-		{"创建菜单", "btn_menu_create"},
-		{"编辑菜单", "btn_menu_update"},
-		{"删除菜单", "btn_menu_delete"},
-		// ERP产品管理权限
-		{"创建产品", "btn_product_create"},
-		{"编辑产品", "btn_product_update"},
-		{"删除产品", "btn_product_delete"},
-		// ERP采购管理权限
-		{"创建采购订单", "btn_purchase_create"},
-		{"审核采购订单", "btn_purchase_approve"},
-		{"采购入库", "btn_purchase_inbound"},
-		{"取消采购订单", "btn_purchase_cancel"},
-		{"删除采购订单", "btn_purchase_delete"},
-		// ERP销售管理权限
-		{"创建销售订单", "btn_sales_create"},
-		{"审核销售订单", "btn_sales_approve"},
-		{"销售出库", "btn_sales_outbound"},
-		{"取消销售订单", "btn_sales_cancel"},
-		{"删除销售订单", "btn_sales_delete"},
-		// ERP订单日志权限
-		{"查看订单日志", "btn_order_log_view"},
-		// ERP库存管理权限
-		{"库存调整", "btn_inventory_adjust"},
-		// 库存调整权限
-		{"查看调整申请", "inventory_adjust:list"},
-		{"创建调整申请", "inventory_adjust:create"},
-		{"审核调整申请", "inventory_adjust:approve"},
-		{"拒绝调整申请", "inventory_adjust:reject"},
-		// ERP管理父菜单权限
-		{"查看ERP", "btn_erp_view"},
-	}
-
-	for _, p := range permCodes {
-		var count int64
-		DB.Model(&Permission{}).Where("name = ? AND code = ?", p.name, p.code).Count(&count)
-		if count == 0 {
-			// 权限缺失，尝试修复
-			DB.Exec("UPDATE permissions SET code = ? WHERE name = ? AND code != ?", p.code, p.name, p.code)
-		}
-	}
 	return nil
 }
 
 // quickSyncMenuPermissions 快速同步菜单权限关联
+// 已废弃：菜单权限关联现在在初始化时直接设置正确
 func quickSyncMenuPermissions() error {
-	// 只在权限缺失时同步
-	return assignMenuPermissions()
+	return nil
 }
 
 // ensureAdminMenus 确保管理员角色有所有菜单

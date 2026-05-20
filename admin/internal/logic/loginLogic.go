@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 
+	"myproject/admin/internal/metric"
 	"myproject/admin/internal/model"
 	"myproject/admin/internal/svc"
 	"myproject/admin/internal/types"
@@ -31,19 +32,36 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	user, err := l.svcCtx.UserModel.GetByUsername(req.Username)
 	if err != nil {
+		if metric.IsEnabled() {
+			metric.LoginCounter.Inc("failure")
+		}
 		return nil, err
 	}
 	if user == nil {
+		if metric.IsEnabled() {
+			metric.LoginCounter.Inc("failure")
+		}
 		return nil, errors.New("用户不存在")
 	}
 
 	if user.Status == 0 {
+		if metric.IsEnabled() {
+			metric.LoginCounter.Inc("failure")
+		}
 		return nil, errors.New("用户已被禁用")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
+		if metric.IsEnabled() {
+			metric.LoginCounter.Inc("failure")
+		}
 		return nil, errors.New("密码错误")
+	}
+
+	// 登录成功
+	if metric.IsEnabled() {
+		metric.LoginCounter.Inc("success")
 	}
 
 	var roleID uint

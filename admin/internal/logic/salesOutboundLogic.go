@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"myproject/admin/internal/metric"
 	"myproject/admin/internal/middleware"
 	"myproject/admin/internal/model"
 	"myproject/admin/internal/svc"
@@ -131,7 +132,16 @@ func (l *SalesOutboundLogic) SalesOutbound(req *types.SalesOutboundRequest) (res
 	})
 
 	if err != nil {
+		if metric.IsEnabled() {
+			metric.OrderCreateCounter.Inc("sales", "failure")
+		}
 		return nil, err
+	}
+
+	// 记录销售出库成功指标
+	if metric.IsEnabled() {
+		metric.OrderCreateCounter.Inc("sales", "success")
+		metric.InventoryAdjustCounter.Inc("outbound")
 	}
 
 	operatorID, _ := l.ctx.Value(util.UserIDKey).(uint)

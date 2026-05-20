@@ -9,11 +9,16 @@ import (
 // responseRecorder 用于捕获响应
 type responseRecorder struct {
 	http.ResponseWriter
-	body *bytes.Buffer
+	body       *bytes.Buffer
+	statusCode int
 }
 
 func (r *responseRecorder) Write(b []byte) (int, error) {
 	return r.body.Write(b)
+}
+
+func (r *responseRecorder) WriteHeader(code int) {
+	r.statusCode = code
 }
 
 // ResponseMiddleware 统一响应格式中间件
@@ -25,6 +30,7 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 			recorder := &responseRecorder{
 				ResponseWriter: w,
 				body:           bytes.NewBufferString(""),
+				statusCode:     http.StatusOK,
 			}
 
 			// 执行下一个中间件/handler
@@ -40,8 +46,9 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 				if _, hasCode := responseMap["code"]; hasCode {
 					if _, hasData := responseMap["data"]; hasData {
 						if _, hasMessage := responseMap["message"]; hasMessage {
-							// 已经是统一格式，直接返回
+							// 已经是统一格式，保留原始状态码
 							w.Header().Set("Content-Type", "application/json; charset=utf-8")
+							w.WriteHeader(recorder.statusCode)
 							w.Write([]byte(responseBody))
 							return
 						}
@@ -52,8 +59,8 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 				if _, exists := responseMap["error"]; exists {
 					// 转换为统一响应格式
 					w.Header().Set("Content-Type", "application/json; charset=utf-8")
-					w.WriteHeader(http.StatusOK)
-					
+					w.WriteHeader(recorder.statusCode)
+
 					// 获取错误消息
 					errorMsg := ""
 					if errVal, ok := responseMap["error"]; ok {
@@ -62,7 +69,7 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 
 					// 返回统一格式
 					json.NewEncoder(w).Encode(map[string]interface{}{
-						"code":    400,
+						"code":    recorder.statusCode,
 						"data":    nil,
 						"message": errorMsg,
 					})
@@ -71,7 +78,7 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 
 				// 如果是普通业务数据（不是统一格式也不是错误格式），包装成统一格式
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
-				w.WriteHeader(http.StatusOK)
+				w.WriteHeader(recorder.statusCode)
 				json.NewEncoder(w).Encode(map[string]interface{}{
 					"code":    0,
 					"data":    responseMap,
@@ -82,6 +89,7 @@ func ResponseMiddleware() func(http.HandlerFunc) http.HandlerFunc {
 
 			// 如果不是有效的JSON，直接返回原始响应
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(recorder.statusCode)
 			w.Write([]byte(responseBody))
 		}
 	}

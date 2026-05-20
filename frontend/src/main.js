@@ -6,9 +6,8 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import { useUserStore } from './store'
+import { useThemeStore } from './store/theme'
 import { hasPermission } from './directives/permission'
-
-
 
 // 配置axios全局拦截器
 axios.interceptors.request.use(config => {
@@ -42,17 +41,42 @@ const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
-app.use(ElementPlus, {
-  theme: {
-    primary: '#2c7d34',
-  },
-})
+app.use(ElementPlus)
 
 // 注册权限指令
 app.directive('has-permission', hasPermission)
 
+
+// 全局错误处理
+app.config.errorHandler = (err, instance, info) => {
+  console.error('[Vue Error]', err)
+  console.error('[Vue Error] Component:', instance?.$options?.name || 'Unknown')
+  console.error('[Vue Error] Info:', info)
+
+// 开发环境显示详细错误，生产环境显示友好提示
+  if (import.meta.env.DEV) {
+    console.error('[Vue Error] Stack:', err.stack)
+  }
+}
+
+// 捕获未处理的 Promise 拒绝
+window.addEventListener('unhandledrejection', event => {
+  console.error('[Unhandled Rejection]', event.reason)
+})
+
+// 捕获未捕获的 JavaScript 错误
+window.addEventListener('error', event => {
+  console.error('[Global Error]', event.error)
+})
+
+
+
 // 初始化用户信息
 const userStore = useUserStore()
 userStore.loadUserInfo()
+
+// 初始化主题
+const themeStore = useThemeStore()
+themeStore.initTheme()
 
 app.mount('#app')

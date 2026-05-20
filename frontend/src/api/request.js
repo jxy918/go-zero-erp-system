@@ -52,7 +52,7 @@ service.interceptors.request.use(
 /**
  * 响应拦截器
  * 负责统一处理后端响应：
- * 1. 统一响应格式
+ * 1. 统一响应格式 {code, data, message}
  * 2. 处理错误状态码
  * 3. 处理token过期（401）
  */
@@ -60,19 +60,12 @@ service.interceptors.response.use(
   response => {
     const res = response.data
     
-    // 兼容后端返回的不同字段名格式（code/Code, message/Message）
-    const code = res.code || res.Code || 0
-    const message = res.message || res.Message || 'success'
+    // 后端统一响应格式: {code: 0, data: {...}, message: "success"}
+    const code = res.code ?? 0
+    const message = res.message || 'success'
     
-    // 判断code是否为有效的数字状态码
-    // 如果code是字符串且不是"0"或"200"，说明不是状态码而是业务字段（如分类编码）
-    const isStatusCode = typeof code === 'number' || 
-                        (typeof code === 'string' && (code === '0' || code === '200'))
-    
-    // 处理业务错误（只有当code是有效状态码时才判断）
-    const hasError = isStatusCode && code !== 0 && code !== 200
-    
-    if (hasError) {
+    // 处理业务错误
+    if (code !== 0 && code !== 200) {
       ElMessage.error(message || '请求失败')
       
       // 处理未授权/Token过期（401）
@@ -85,27 +78,8 @@ service.interceptors.response.use(
       return Promise.reject(new Error(message || '请求失败'))
     }
     
-    // 统一响应数据格式
-    let responseData = res
-    
-    // 情况1：后端返回标准格式 {code, data: {...}, message}
-    if (res.data !== undefined) {
-      responseData = res.data
-    } else if (res.Data !== undefined) {
-      responseData = res.Data // 兼容大写Data
-    }
-    // 情况2：后端直接返回业务数据（没有外层data包装）- 包含menus/categories等字段
-    else if (res.menus !== undefined || res.Menus !== undefined || 
-             res.categories !== undefined || res.Categories !== undefined ||
-             res.products !== undefined || res.Products !== undefined ||
-             res.total !== undefined || res.Total !== undefined) {
-      responseData = res
-    }
-    // 情况3：go-zero httpx.ErrorCtx返回的格式（只有code和message，没有data）
-    else if (isStatusCode && res.data === undefined && res.Data === undefined) {
-      // 这种情况是错误响应，应该已经在上面的hasError中处理了
-      responseData = null
-    }
+    // 提取 data 字段
+    const responseData = res.data !== undefined ? res.data : res
     
     // 仅在开发模式下输出调试日志
     if (import.meta.env.DEV) {

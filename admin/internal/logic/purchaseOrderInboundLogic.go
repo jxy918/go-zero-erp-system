@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"myproject/admin/internal/metric"
 	"myproject/admin/internal/model"
 	"myproject/admin/internal/svc"
 	"myproject/admin/internal/types"
@@ -55,7 +56,7 @@ func (l *PurchaseOrderInboundLogic) PurchaseOrderInbound(req *types.PurchaseInbo
 		return nil, errors.New("仓库不存在")
 	}
 
-	err = model.DB.Transaction(func(tx *gorm.DB) error {
+	err = l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
 		for _, item := range order.Items {
 			baseQty := item.BaseQty
 			if baseQty == 0 {
@@ -136,8 +137,36 @@ func (l *PurchaseOrderInboundLogic) PurchaseOrderInbound(req *types.PurchaseInbo
 	})
 
 	if err != nil {
+		if metric.IsEnabled() {
+			metric.OrderCreateCounter.Inc("purchase", "failure")
+		}
 		return nil, err
 	}
 
-	return nil, nil
+	// 记录采购入库成功指标
+	if metric.IsEnabled() {
+		metric.OrderCreateCounter.Inc("purchase", "success")
+		metric.InventoryAdjustCounter.Inc("inbound")
+	}
+
+	// 重新查询更新后的订单信息
+	updatedOrder, err := l.svcCtx.PurchaseModel.GetByID(req.OrderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建响应
+	resp = &types.PurchaseOrderInfo{
+		ID:          updatedOrder.ID,
+		OrderNo:     updatedOrder.OrderNo,
+		SupplierID:  updatedOrder.SupplierID,
+		WarehouseID: updatedOrder.WarehouseID,
+		TotalAmount: updatedOrder.TotalAmount,
+		Status:      updatedOrder.Status,
+		Remark:      updatedOrder.Remark,
+		CreatedAt:   updatedOrder.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:   updatedOrder.UpdatedAt.Format("2006-01-02 15:04:05"),
+	}
+
+	return resp, nil
 }

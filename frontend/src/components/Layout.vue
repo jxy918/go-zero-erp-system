@@ -94,10 +94,7 @@
             </button>
           </div>
           <div class="header-right">
-            <el-button link @click="toggleTheme" class="theme-toggle">
-              <el-icon v-if="isDarkMode"><Sunny /></el-icon>
-              <el-icon v-else><Moon /></el-icon>
-            </el-button>
+            <ThemeSwitcher />
             <el-dropdown>
               <span class="user">
                 <el-avatar>{{ username }}</el-avatar>
@@ -124,11 +121,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import * as ElIcons from '@element-plus/icons-vue'
-import { Sunny, Moon } from '@element-plus/icons-vue'
 import { useUserStore, useMenuStore } from '../store'
+import ThemeSwitcher from './ThemeSwitcher.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -164,20 +161,6 @@ const closeSidebar = () => {
   showSidebar.value = false
 }
 
-const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value
-  localStorage.setItem('darkMode', isDarkMode.value.toString())
-  updateBodyClass()
-}
-
-const updateBodyClass = () => {
-  if (isDarkMode.value) {
-    document.body.classList.add('dark-mode')
-  } else {
-    document.body.classList.remove('dark-mode')
-  }
-}
-
 const navigate = (path) => {
   router.push(path)
   // 移动端点击菜单项后关闭侧边栏
@@ -209,16 +192,6 @@ onMounted(async () => {
   // 加载菜单数据
   await menuStore.loadMenuTree()
   
-  const savedDarkMode = localStorage.getItem('darkMode')
-  if (savedDarkMode !== null) {
-    isDarkMode.value = savedDarkMode === 'true'
-  } else {
-    // 检测系统偏好
-    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
-  
-  updateBodyClass()
-  
   // 添加窗口大小变化监听
   window.addEventListener('resize', handleResize)
 })
@@ -227,276 +200,12 @@ onUnmounted(() => {
   // 移除窗口大小变化监听
   window.removeEventListener('resize', handleResize)
 })
-
-// 监听系统主题变化
-watch(isDarkMode, () => {
-  updateBodyClass()
-})
 </script>
-
-<style>
-/* 全局样式 */
-:root {
-  --primary-color: #2c7d34;
-  --primary-light: #4CAF50;
-  --background-light: #f5f7fa;
-  --background-dark: #1a1a1a;
-  --card-light: #ffffff;
-  --card-dark: #2d2d2d;
-  --text-light: #333333;
-  --text-dark: #e0e0e0;
-  --border-light: #e0e0e0;
-  --border-dark: #404040;
-  --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-dark: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-hover-light: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-hover-dark: 0 10px 15px rgba(0, 0, 0, 0.4), 0 4px 6px rgba(0, 0, 0, 0.3);
-  --border-radius: 8px;
-}
-
-body {
-  transition: background-color 0.3s ease, color 0.3s ease;
-  background-color: var(--background-light);
-  color: var(--text-light);
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
-}
-
-body.dark-mode {
-  background-color: var(--background-dark);
-  color: var(--text-dark);
-}
-
-/* 卡片样式 */
-.el-card {
-  border-radius: var(--border-radius) !important;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-light);
-  transition: all 0.3s ease;
-  background-color: var(--card-light);
-  overflow: hidden;
-}
-
-body.dark-mode .el-card {
-  border: 1px solid var(--border-dark);
-  box-shadow: var(--shadow-dark);
-  background-color: var(--card-dark);
-}
-
-.el-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-hover-light);
-}
-
-body.dark-mode .el-card:hover {
-  box-shadow: var(--shadow-hover-dark);
-}
-
-/* 按钮样式 */
-.el-button {
-  border-radius: var(--border-radius) !important;
-  transition: all 0.3s ease;
-}
-
-.el-button:hover {
-  transform: translateY(-1px);
-}
-
-/* 表格样式 */
-.el-table {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden;
-}
-
-.el-table th {
-  border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
-}
-
-/* 对话框样式 */
-.el-dialog {
-  border-radius: var(--border-radius) !important;
-  overflow: hidden;
-}
-
-.el-dialog__header {
-  background-color: var(--card-light);
-  border-bottom: 1px solid var(--border-light);
-}
-
-body.dark-mode .el-dialog__header {
-  background-color: var(--card-dark);
-  border-bottom: 1px solid var(--border-dark);
-  color: var(--text-dark);
-}
-
-.el-dialog__body {
-  background-color: var(--card-light);
-  color: var(--text-light);
-}
-
-body.dark-mode .el-dialog__body {
-  background-color: var(--card-dark);
-  color: var(--text-dark);
-}
-
-.el-dialog__footer {
-  background-color: var(--card-light);
-  border-top: 1px solid var(--border-light);
-}
-
-body.dark-mode .el-dialog__footer {
-  background-color: var(--card-dark);
-  border-top: 1px solid var(--border-dark);
-}
-
-/* 表单样式 */
-.el-form-item__label {
-  color: var(--text-light);
-}
-
-body.dark-mode .el-form-item__label {
-  color: var(--text-dark);
-}
-
-.el-input__wrapper {
-  border-radius: var(--border-radius) !important;
-}
-
-body.dark-mode .el-input__wrapper {
-  background-color: var(--card-dark) !important;
-  border-color: var(--border-dark) !important;
-}
-
-body.dark-mode .el-input__inner {
-  color: var(--text-dark) !important;
-}
-
-/* 树组件样式 */
-.el-tree {
-  background-color: transparent;
-}
-
-body.dark-mode .el-tree-node__content:hover {
-  background-color: rgba(76, 175, 80, 0.15) !important;
-}
-
-/* 下拉菜单样式 */
-.el-dropdown-menu {
-  border-radius: var(--border-radius) !important;
-  box-shadow: var(--shadow-light) !important;
-}
-
-body.dark-mode .el-dropdown-menu {
-  background-color: var(--card-dark) !important;
-  border: 1px solid var(--border-dark) !important;
-  box-shadow: var(--shadow-dark) !important;
-}
-
-body.dark-mode .el-dropdown-menu__item {
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-dropdown-menu__item:hover {
-  background-color: rgba(76, 175, 80, 0.15) !important;
-}
-
-/* 标签样式 */
-body.dark-mode .el-tag {
-  background-color: rgba(76, 175, 80, 0.2) !important;
-  border-color: rgba(76, 175, 80, 0.3) !important;
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-tag--success {
-  background-color: rgba(76, 175, 80, 0.3) !important;
-  border-color: rgba(76, 175, 80, 0.4) !important;
-  color: #4CAF50 !important;
-}
-
-body.dark-mode .el-tag--danger {
-  background-color: rgba(244, 67, 54, 0.3) !important;
-  border-color: rgba(244, 67, 54, 0.4) !important;
-  color: #f44336 !important;
-}
-
-/* 分页样式 */
-body.dark-mode .el-pagination__total {
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-pagination__sizes .el-select .el-input__inner {
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-pagination button {
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-pagination__item {
-  background-color: var(--card-dark) !important;
-  border-color: var(--border-dark) !important;
-  color: var(--text-dark) !important;
-}
-
-body.dark-mode .el-pagination__item:hover {
-  border-color: var(--primary-color) !important;
-  color: var(--primary-color) !important;
-}
-
-body.dark-mode .el-pagination__item.active {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: white !important;
-}
-
-/* 页面切换动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* 涟漪效果 */
-.el-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.el-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.el-button:active::after {
-  width: 300px;
-  height: 300px;
-}
-
-body.dark-mode .el-button::after {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-</style>
 
 <style scoped>
 .layout {
   height: 100vh;
   overflow: hidden;
-  transition: background-color 0.3s ease;
-}
-
-.layout.dark-mode {
-  background-color: var(--background-dark);
 }
 
 .el-container {
@@ -507,15 +216,11 @@ body.dark-mode .el-button::after {
 .el-main {
   flex: 1;
   overflow-y: auto;
-  transition: background-color 0.3s ease;
 }
 
 .aside {
   height: 100vh;
-  transition: width 0.3s ease, background-color 0.3s ease;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  transition: width 0.3s ease;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
 }
 
@@ -523,7 +228,6 @@ body.dark-mode .el-button::after {
   width: 60px !important;
 }
 
-/* 统一的菜单按钮样式 */
 .menu-btn {
   display: flex;
   align-items: center;
@@ -545,62 +249,35 @@ body.dark-mode .el-button::after {
   box-shadow: 0 2px 4px rgba(44, 125, 52, 0.15);
 }
 
-.menu-btn .menu-icon {
-  color: inherit;
-}
-
-/* 移动端关闭按钮 */
 .mobile-close-btn {
   display: none;
   margin-right: 8px;
 }
 
-.layout.dark-mode .menu-btn {
-  border-color: rgba(76, 175, 80, 0.4);
-  background: rgba(76, 175, 80, 0.15);
-  color: #4CAF50;
-}
-
-.layout.dark-mode .menu-btn:hover {
-  background: rgba(76, 175, 80, 0.25);
-  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
-}
-
-/* 菜单文本样式 */
 .menu-text {
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 折叠状态下的菜单文本 */
 .aside.collapsed .menu-text {
   opacity: 0;
   transform: translateX(-10px);
   position: absolute;
   white-space: nowrap;
-  background-color: var(--card-light);
-  color: var(--text-light);
   padding: 4px 8px;
   border-radius: 4px;
-  box-shadow: var(--shadow-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   margin-left: 10px;
   pointer-events: none;
+  font-size: 14px;
 }
 
-.layout.dark-mode .aside.collapsed .menu-text {
-  background-color: var(--card-dark);
-  color: var(--text-dark);
-  box-shadow: var(--shadow-dark);
-}
-
-/* 折叠状态下鼠标悬停显示菜单文本 */
 .aside.collapsed .el-menu-item:hover .menu-text,
 .aside.collapsed .el-sub-menu__title:hover .menu-text {
   opacity: 1;
   transform: translateX(0);
 }
 
-/* 非折叠状态下的菜单文本 */
 .aside:not(.collapsed) .menu-text {
   opacity: 1;
   transform: translateX(0);
@@ -616,14 +293,7 @@ body.dark-mode .el-button::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-light);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: color 0.3s ease;
   gap: 10px;
-}
-
-.layout.dark-mode .logo {
-  color: var(--text-dark);
 }
 
 .logo-img {
@@ -640,22 +310,10 @@ body.dark-mode .el-button::after {
   height: 100%;
 }
 
-.logo-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.logo-collapsed {
-  width: 32px;
-  height: 32px;
-}
-
 .logo h2 {
   font-size: 18px;
   font-weight: bold;
   margin: 0;
-  transition: font-size 0.3s ease;
   white-space: nowrap;
 }
 
@@ -672,39 +330,16 @@ body.dark-mode .el-button::after {
 }
 
 .header {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.8);
-  color: var(--text-light);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.layout.dark-mode .header {
-  background-color: rgba(30, 30, 30, 0.8);
-  color: var(--text-dark);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-}
-
-.menu-toggle,
-.theme-toggle {
-  color: var(--text-light);
-  transition: color 0.3s ease;
-}
-
-.layout.dark-mode .menu-toggle,
-.layout.dark-mode .theme-toggle {
-  color: var(--text-dark);
 }
 
 .header-right {
@@ -717,52 +352,31 @@ body.dark-mode .el-button::after {
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: color 0.3s ease;
 }
 
 .username {
   margin-left: 10px;
   display: block;
-  transition: color 0.3s ease;
-}
-
-.layout.dark-mode .username {
-  color: var(--text-dark);
 }
 
 .main {
   padding: 20px;
-  background-color: var(--background-light);
-  overflow-y: auto;
-  transition: background-color 0.3s ease;
 }
 
-.layout.dark-mode .main {
-  background-color: var(--background-dark);
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-/* 响应式设计 */
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 @media screen and (max-width: 768px) {
-  /* 移动端菜单按钮样式优化 */
   .menu-btn {
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(44, 125, 52, 0.3);
-    background: rgba(44, 125, 52, 0.15);
-    border-radius: 8px;
-  }
-  
-  .menu-btn:hover {
-    background: rgba(44, 125, 52, 0.25);
-  }
-  
-  .layout.dark-mode .menu-btn {
-    border-color: rgba(76, 175, 80, 0.4);
-    background: rgba(76, 175, 80, 0.2);
-  }
-  
-  .layout.dark-mode .menu-btn:hover {
-    background: rgba(76, 175, 80, 0.3);
   }
   
   .menu-btn .menu-icon {
@@ -786,7 +400,6 @@ body.dark-mode .el-button::after {
     transform: translateX(0);
   }
   
-  /* 移动端遮罩层 */
   .sidebar-overlay {
     position: fixed;
     top: 0;
@@ -817,38 +430,21 @@ body.dark-mode .el-button::after {
     padding: 12px;
   }
   
-  .el-container {
-    flex-direction: column;
-  }
-  
-  /* 移动端菜单图标样式优化 */
-  .el-menu-item, .el-sub-menu__title {
-    padding: 0 15px !important;
-  }
-  
-  .el-menu-item .el-icon, .el-sub-menu__title .el-icon {
-    font-size: 18px !important;
-  }
-  
-  /* 移动端显示关闭按钮 */
   .mobile-close-btn {
     display: flex;
   }
   
-  /* 移动端logo区域调整 */
   .logo {
     justify-content: flex-start;
     padding: 0 12px;
-    gap: 10px;
   }
   
-  /* 移动端菜单项间距优化 */
-  .el-menu-item, .el-sub-menu__title {
+  .el-menu-item,
+  .el-sub-menu__title {
     height: 48px !important;
     line-height: 48px !important;
   }
   
-  /* 移动端隐藏折叠状态的样式 */
   .aside.collapsed {
     width: 240px !important;
   }

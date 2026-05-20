@@ -1,18 +1,17 @@
 # 项目结构分析报告
 
-生成时间: 2026-04-10
+生成时间: 2026-05-20
 
 ---
 
 ## 一、项目整体架构
 
 ```
-myproject/
+go-zero-erp/
 ├── admin/              # Go 后端 (go-zero 框架)
 ├── frontend/           # Vue 前端 (Vite 构建)
-├── test_cases/         # 测试用例
-├── test_results/       # 测试结果
-├── main.go             # ⚠️ 独立 Gin 测试程序，非主入口
+├── docs/               # 文档目录
+├── tests/              # 测试脚本
 └── AGENTS.md           # 开发指南
 ```
 
@@ -20,9 +19,9 @@ myproject/
 
 ---
 
-## 一、核心流程分析
+## 二、核心流程分析
 
-### 1.1 登录认证流程
+### 2.1 登录认证流程
 
 ```
 前端                    后端                      数据库
@@ -52,7 +51,7 @@ myproject/
 - `loginlogic.go:53` - JWT 生成 (HS256, 24h 过期)
 - `jwt.go:29` - 签名算法
 
-### 1.2 请求认证流程
+### 2.2 请求认证流程
 
 ```
 请求 → CORS中间件 → Auth中间件 → 业务处理
@@ -69,7 +68,7 @@ myproject/
 - `auth.go:45-55` - 用户状态检查
 - `auth.go:63-70` - 异步日志记录
 
-### 1.3 前端路由守卫流程
+### 2.3 前端路由守卫流程
 
 ```
 router.beforeEach()
@@ -88,24 +87,14 @@ router.beforeEach()
 ```
 
 **关键代码点**:
-- `router/index.js:55-98` - 路由守卫
-- `router/index.js:102-154` - 权限检查逻辑
-
-### 1.4 角色权限分配流程
-
-```
-AssignRoles(userID, roleIDs)
-       ↓
-1. Association("Roles").Clear()  → 清除旧角色
-2. WHERE id IN roleIDs          → 查找新角色
-3. Association("Roles").Append()  → 分配新角色
-```
+- `router/index.js:129-169` - 路由守卫
+- `router/index.js:172-224` - 权限检查逻辑
 
 ---
 
-## 二、后端架构分析 (admin/)
+## 三、后端架构分析 (admin/)
 
-### 2.1 分层结构
+### 3.1 分层结构
 
 ```
 admin/internal/
@@ -119,16 +108,16 @@ admin/internal/
 └── util/      # 工具层: JWT、转换函数
 ```
 
-### 2.2 代码分布
+### 3.2 代码分布
 
 | 层级 | 文件数 | 主要职责 |
 |------|--------|----------|
-| handler | 16 | HTTP 路由注册、请求分发 |
-| logic | 18 | 业务逻辑处理 |
-| model | 8 | 数据库操作、数据模型 |
+| handler | 25+ | HTTP 路由注册、请求分发 |
+| logic | 25+ | 业务逻辑处理 |
+| model | 10+ | 数据库操作、数据模型 |
 | middleware | 2 | 认证、CORS |
 
-### 2.3 数据模型关系
+### 3.3 数据模型关系
 
 ```
 User (用户)
@@ -144,9 +133,9 @@ Permission (权限) ←→ Menu (菜单)
 - Role ↔ Menu: 多对多 (通过 role_menus 表)
 - Menu ↔ Permission: 多对多 (通过 menu_permissions 表)
 
-### 2.4 API 架构
+### 3.4 API 架构
 
-**总端点数**: 29 个
+**总端点数**: 45+ 个
 
 | 模块 | 端点 | 说明 |
 |------|------|------|
@@ -156,50 +145,68 @@ Permission (权限) ←→ Menu (菜单)
 | permission | 5 | 权限 CRUD + 获取单个 |
 | menu | 7 | 菜单 CRUD + 树形结构 + 权限分配 |
 | activity | 1 | 活动日志查询 |
-
-### 2.5 认证机制
-
-```
-请求 → CORS中间件 → 认证中间件 → 业务处理
-                  ↓
-            验证 JWT Token
-                  ↓
-            检查用户状态
-                  ↓
-            异步记录活动日志 (go routine)
-```
+| product | 6 | 商品管理 CRUD |
+| category | 5 | 商品分类管理 |
+| supplier | 5 | 供应商管理 |
+| customer | 5 | 客户管理 |
+| warehouse | 5 | 仓库管理 |
+| purchase | 6 | 采购订单管理 |
+| sales | 6 | 销售订单管理 |
+| inventory | 10+ | 库存调整、盘点、调拨 |
 
 ---
 
-## 三、前端架构分析 (frontend/)
+## 四、前端架构分析 (frontend/)
 
-### 3.1 组件结构
+### 4.1 组件结构
 
 ```
 frontend/src/
 ├── api/           # Axios 实例封装
-├── components/    # 公共组件 (Layout)
+├── components/    # 公共组件 (Layout, ThemeSwitcher)
 ├── router/        # Vue Router 配置
 ├── store/        # Pinia 状态管理
 ├── views/        # 页面组件
+│   ├── login/
 │   ├── dashboard/
 │   ├── user/
 │   ├── role/
 │   ├── permission/
-│   └── menu/
+│   ├── menu/
+│   ├── activity/
+│   ├── product/
+│   ├── supplier/
+│   ├── customer/
+│   ├── warehouse/
+│   ├── purchase/
+│   ├── sales/
+│   └── inventory/
+├── styles/       # 主题样式文件
+├── utils/        # 工具函数
 ├── App.vue       # 根组件
 └── main.js       # 入口
 ```
 
-### 3.2 状态管理
+### 4.2 状态管理
 
-- **Pinia Store**: 用户信息、认证状态
-- **localStorage**: Token 和用户信息持久化
+- **Pinia Store**: 用户信息、认证状态、菜单树、主题配置
+- **localStorage**: Token、用户信息、主题选择持久化
 
-### 3.3 请求流程
+### 4.3 主题系统
 
 ```
-Vue 组件 → Axios → Vite Proxy (/api) → 后端 (localhost:8000)
+styles/
+├── default.css         # 默认绿色主题
+├── business.css        # 商务专业风格
+├── dark.css            # 深色模式
+├── modern.css          # 现代简约风格
+└── business-theme.css  # 商务主题备用
+```
+
+### 4.4 请求流程
+
+```
+Vue 组件 → Axios → Vite Proxy (/api) → 后端 (localhost:8001)
               ↓
         请求拦截器添加:
         - Authorization: Bearer {token}
@@ -208,47 +215,41 @@ Vue 组件 → Axios → Vite Proxy (/api) → 后端 (localhost:8000)
 
 ---
 
-## 四、发现的问题
+## 五、发现的问题与修复记录
 
-### 4.1 routes.go 与 admin.api 不同步
+### 5.1 已修复问题
 
-**问题**: routes.go 包含的路由比 admin.api 更多
+| 问题 | 状态 | 修复方式 |
+|------|------|----------|
+| routes.go 与 admin.api 不同步 | ✅ 已修复 | 统一使用 goctl 生成，禁止手动修改 |
+| 参数命名不一致 (camelCase vs snake_case) | ✅ 已修复 | 统一使用 snake_case |
+| 库存调整接口缺少字段 | ✅ 已修复 | 补充 reason、check_id 等字段 |
+| 库存盘点 items 类型不匹配 | ✅ 已修复 | 调整请求结构 |
+| 路由匹配错误 /dashboard | ✅ 已修复 | 改为 router.push('/') |
+| 深色模式登录页面样式问题 | ✅ 已修复 | 动态主题适配 |
+| 权限路径与路由不匹配 | ✅ 已修复 | 数据库路径修正 |
 
-routes.go 有但 admin.api 缺少的路由:
-- `/menu/create`, `/menu/update`, `/menu/delete`
-- `/menu/get/:id`, `/menu/list`, `/menu/assign-permissions`
-- `/role/assign-menus`
-- `/activity/list`
+### 5.2 待改进问题
 
-**原因**: 路由是手动添加到 routes.go 的，但 admin.api 未同步更新
-
-**影响**: 使用 `goctl api go` 重新生成会丢失这些路由
-
-### 4.2 main.go 是独立测试程序
-
-**问题**: 根目录的 main.go 使用 Gin 框架，与 admin/admin.go (go-zero) 完全独立
-
-**影响**: 开发者可能误用 main.go 作为主入口
-
-### 4.3 命名不一致
-
-- admin.api 定义 `/user/update` 为 PUT
-- routes.go 实现为 POST
+| 问题 | 严重程度 | 说明 |
+|------|----------|------|
+| JWT 密钥硬编码 | 高 | 默认值 "your-secret-key" |
+| CORS 全开 | 高 | `Access-Control-Allow-Origin: *` |
+| 缺少单元测试 | 中 | 仅有测试文档，无实际测试代码 |
 
 ---
 
-## 五、依赖分析
+## 六、依赖分析
 
-### 5.1 Go 依赖
+### 6.1 Go 依赖
 
 | 依赖 | 版本 | 用途 |
 |------|------|------|
 | go-zero | 1.10.0 | REST 框架 |
 | GORM | 1.30.0 | ORM |
 | jwt/v5 | 5.2.0 | JWT 认证 |
-| gin | 10.1.0 | ⚠️ 混用 (main.go) |
 
-### 5.2 Node 依赖
+### 6.2 Node 依赖
 
 | 依赖 | 版本 | 用途 |
 |------|------|------|
@@ -261,76 +262,47 @@ routes.go 有但 admin.api 缺少的路由:
 
 ---
 
-## 六、安全考量
+## 七、安全考量
 
 1. **JWT 密钥**: 当前使用默认值 "your-secret-key" (生产需修改)
 2. **CORS**: 当前允许所有来源 `*` (生产需限制)
-3. **密码存储**: 使用 bcrypt 加密 (需验证实现)
-4. **SQL 注入**: GORM 参数化查询 (已防护)
+3. **密码存储**: 使用 bcrypt 加密存储 ✅
+4. **SQL 注入**: GORM 参数化查询 ✅
+5. **参数校验**: go-zero 自动参数校验 ✅
 
 ---
 
-## 七、Pinia 状态管理分析
+## 八、Pinia 状态管理分析
 
-### 7.1 Store 结构
+### 8.1 Store 结构
 
 ```
 store/
 ├── index.js      # 导出所有 store
 ├── user.js       # 用户状态 (token, userInfo, isAuthenticated)
 ├── menu.js       # 菜单树
-└── activity.js   # 活动日志
+├── activity.js   # 活动日志
+└── theme.js      # 主题配置
 ```
 
-### 7.2 UserStore 状态
+### 8.2 ThemeStore 状态
 
 ```javascript
 state: {
-  userInfo: null,           // 用户对象
-  token: localStorage,      // JWT token
-  isAuthenticated: !!token    // 是否已认证
+  themes: [...],           // 可用主题列表
+  currentThemeId: 'default', // 当前主题ID
+  currentTheme: {...}       // 当前主题配置
 }
 ```
 
-### 7.3 持久化策略
+### 8.3 持久化策略
 
 | 数据 | 存储位置 | 同步策略 |
 |------|----------|----------|
 | token | localStorage | 登录时写入，退出时清除 |
 | userInfo | localStorage + memory | JSON 序列化 |
 | menuTree | memory only | 每次路由守卫检查 |
-
----
-
-## 八、API 请求流程分析
-
-### 8.1 Axios 拦截器
-
-```javascript
-// main.js
-axios.interceptors.request.use(config => {
-  config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`
-  config.headers['user_id'] = JSON.parse(localStorage.getItem('user'))?.id
-  config.headers['Content-Type'] = 'application/json; charset=utf-8'
-  return config
-})
-```
-
-### 8.2 请求转发
-
-```
-浏览器请求                    Vite Proxy                  后端
-   │                             │                          │
-   │  GET /api/user/list        │                          │
-   │────────────────────────────>│                          │
-   │                             │  移除 /api 前缀           │
-   │                             │──────────────────────────>│
-   │                             │  GET /user/list          │
-   │                             │<──────────────────────────│
-   │                             │  {users: [...]}          │
-   │  {users: [...]}             │                          │
-   │<────────────────────────────│                          │
-```
+| theme | localStorage | 切换时保存 |
 
 ---
 
@@ -346,6 +318,7 @@ axios.interceptors.request.use(config => {
 | ✅ 异步日志 | Activity 记录不阻塞主流程 |
 | ✅ 路由守卫 | 前端权限控制 |
 | ✅ 软删除 | GORM DeletedAt |
+| ✅ 多主题支持 | 动态主题切换 |
 
 ### 9.2 风险点
 
@@ -353,56 +326,78 @@ axios.interceptors.request.use(config => {
 |------|----------|------|
 | ⚠️ JWT 密钥硬编码 | 高 | 默认值 "your-secret-key" |
 | ⚠️ CORS 全开 | 高 | `Access-Control-Allow-Origin: *` |
-| ⚠️ Token 无刷新机制 | 中 | 仅 refresh 接口，客户端未实现 |
-| ⚠️ 密码强度无验证 | 中 | 无密码复杂度检查 |
-| ⚠️ routes.go 不同步 | 中 | admin.api 与实际路由不一致 |
-| ⚠️ 缺少单元测试 | 低 | test_cases 仅文档，无实际测试 |
+| ⚠️ 缺少单元测试 | 中 | 仅有测试文档 |
 
 ---
 
 ## 十、文件清单
 
-### 10.1 后端文件 (60+ Go 文件)
+### 10.1 后端文件 (80+ Go 文件)
 
 ```
 admin/
 ├── admin.go                 # 入口
 ├── admin.api               # API 定义
+├── api/                    # 模块 API 定义
+│   ├── auth.api
+│   ├── user.api
+│   ├── role.api
+│   ├── permission.api
+│   ├── menu.api
+│   ├── product.api
+│   ├── inventory.api
+│   ├── purchase.api
+│   └── sales.api
 ├── etc/admin-api.yaml     # 配置
 └── internal/
     ├── config/            # 1 文件
-    ├── handler/           # 16 文件 (包括 routes.go)
-    ├── logic/             # 18 文件
+    ├── handler/           # 25+ 文件
+    ├── logic/             # 25+ 文件
     ├── middleware/         # 2 文件
-    ├── model/             # 8 文件
+    ├── model/             # 10+ 文件
     ├── svc/               # 1 文件
     ├── types/             # 1 文件
     └── util/              # 2 文件
 ```
 
-### 10.2 前端文件 (30+ Vue/JS 文件)
+### 10.2 前端文件 (50+ Vue/JS/CSS 文件)
 
 ```
 frontend/src/
 ├── main.js                # 入口
 ├── App.vue                # 根组件
 ├── router/index.js        # 路由配置
-├── store/                 # 4 文件
+├── store/                 # 5 文件
 │   ├── index.js
 │   ├── user.js
 │   ├── menu.js
-│   └── activity.js
+│   ├── activity.js
+│   └── theme.js
 ├── api/                   # API 模块
 ├── components/            # 公共组件
-│   └── Layout.vue
-└── views/                 # 页面组件
+│   ├── Layout.vue
+│   └── ThemeSwitcher.vue
+├── styles/               # 主题样式
+│   ├── default.css
+│   ├── business.css
+│   ├── dark.css
+│   └── modern.css
+├── utils/                # 工具函数
+└── views/                # 页面组件
     ├── login/
     ├── dashboard/
     ├── user/
     ├── role/
     ├── permission/
     ├── menu/
-    └── activity/
+    ├── activity/
+    ├── product/
+    ├── supplier/
+    ├── customer/
+    ├── warehouse/
+    ├── purchase/
+    ├── sales/
+    └── inventory/
 ```
 
 ---
@@ -415,53 +410,9 @@ frontend/src/
 | 代码组织 | ✅ 模块化良好，职责分离 |
 | API 设计 | ✅ RESTful 风格，端点合理 |
 | 前后端分离 | ✅ 架构解耦，接口定义 |
-| ⚠️ 同步问题 | ❌ routes.go 与 admin.api 不同步 |
-| ⚠️ 文档 | ⚠️ 缺少 Swagger/API 文档 |
-| ⚠️ 测试 | ⚠️ 有测试用例但无实际测试代码 |
-| ⚠️ 安全 | ⚠️ JWT 密钥和 CORS 配置需生产化 |
-
----
-
-## 十一、前端组件分析
-
-### 11.1 Vue 页面组件
-
-| 组件 | 行数 | 功能 |
-|------|------|------|
-| User.vue | 473 | 用户管理 CRUD、角色分配 |
-| Role.vue | ~400 | 角色管理、权限分配 |
-| Permission.vue | ~350 | 权限管理 |
-| Menu.vue | ~300 | 菜单管理 |
-| Activity.vue | ~200 | 活动日志查询 |
-| Dashboard.vue | ~150 | 数据统计 |
-| Login.vue | ~100 | 登录表单 |
-
-### 11.2 API 模块
-
-```
-api/
-├── request.js     # Axios 实例 (拦截器、超时、错误处理)
-├── index.js      # 统一导出
-├── user.js       # 用户 API
-├── role.js       # 角色 API
-├── menu.js       # 菜单 API
-└── activity.js   # 活动日志 API
-```
-
-### 11.3 请求拦截器关键逻辑
-
-```javascript
-// request.js
-// 请求拦截
-config.headers.Authorization = `Bearer ${token}`
-config.headers['user_id'] = userId
-
-// 响应拦截
-if (code === 401) {
-  userStore.logout()
-  window.location.href = '/login'
-}
-```
+| 多主题支持 | ✅ 完整的主题切换系统 |
+| ⚠️ 安全配置 | ⚠️ JWT 密钥和 CORS 配置需生产化 |
+| ⚠️ 测试 | ⚠️ 缺少单元测试 |
 
 ---
 
@@ -471,7 +422,5 @@ if (code === 401) {
 |--------|------|------|
 | 🔴 高 | JWT 密钥硬编码 | 改为环境变量或配置中心 |
 | 🔴 高 | CORS 全开 | 生产环境限制来源 |
-| 🟡 中 | routes.go 不同步 | 统一使用 goctl 管理 |
 | 🟡 中 | 缺少单元测试 | 添加 Go 测试用例 |
-| 🟢 低 | Token 刷新 | 前端实现静默刷新 |
 | 🟢 低 | 密码强度 | 添加复杂度验证 |

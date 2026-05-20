@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   ShoppingCart, Document, User, Box, View, PieChart, Folder,
@@ -219,6 +219,9 @@ import {
 import * as echarts from 'echarts'
 import { erpApi } from '../../api/erp'
 import { activityApi } from '../../api/activity'
+
+let trendChartInstance = null
+let resizeHandler = null
 
 const router = useRouter()
 
@@ -398,7 +401,19 @@ const loadTrend = async () => {
 const renderTrendChart = (data) => {
   nextTick(() => {
     if (!trendChart.value) return
-    const chart = echarts.init(trendChart.value)
+    
+    // 如果已存在实例，先销毁
+    if (trendChartInstance) {
+      trendChartInstance.dispose()
+      trendChartInstance = null
+    }
+    
+    // 移除旧的 resize 监听器
+    if (resizeHandler) {
+      window.removeEventListener('resize', resizeHandler)
+    }
+    
+    trendChartInstance = echarts.init(trendChart.value)
     const option = {
       tooltip: {
         trigger: 'axis',
@@ -474,10 +489,29 @@ const renderTrendChart = (data) => {
         }
       ]
     }
-    chart.setOption(option)
-    window.addEventListener('resize', () => chart.resize())
+    trendChartInstance.setOption(option)
+    
+    // 添加新的 resize 监听器
+    resizeHandler = () => {
+      if (trendChartInstance) {
+        trendChartInstance.resize()
+      }
+    }
+    window.addEventListener('resize', resizeHandler)
   })
 }
+
+// 组件卸载前销毁图表实例
+onBeforeUnmount(() => {
+  if (trendChartInstance) {
+    trendChartInstance.dispose()
+    trendChartInstance = null
+  }
+  if (resizeHandler) {
+    window.removeEventListener('resize', resizeHandler)
+    resizeHandler = null
+  }
+})
 
 const navigate = (path) => {
   router.push(path)

@@ -29,31 +29,31 @@ func NewGetErpDashboardLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GetErpDashboardLogic) GetErpDashboard() (resp *types.ErpDashboardResponse, err error) {
 	var totalProducts int64
-	err = model.DB.Model(&model.Product{}).Where("status = ?", 1).Count(&totalProducts).Error
+	err = l.svcCtx.DB.Model(&model.Product{}).Where("status = ?", 1).Count(&totalProducts).Error
 	if err != nil {
 		return nil, err
 	}
 
 	var totalSuppliers int64
-	err = model.DB.Model(&model.Supplier{}).Where("status = ?", 1).Count(&totalSuppliers).Error
+	err = l.svcCtx.DB.Model(&model.Supplier{}).Where("status = ?", 1).Count(&totalSuppliers).Error
 	if err != nil {
 		return nil, err
 	}
 
 	var totalCustomers int64
-	err = model.DB.Model(&model.Customer{}).Where("status = ?", 1).Count(&totalCustomers).Error
+	err = l.svcCtx.DB.Model(&model.Customer{}).Where("status = ?", 1).Count(&totalCustomers).Error
 	if err != nil {
 		return nil, err
 	}
 
 	var purchaseOrderCount int64
-	err = model.DB.Model(&model.PurchaseOrder{}).Count(&purchaseOrderCount).Error
+	err = l.svcCtx.DB.Model(&model.PurchaseOrder{}).Count(&purchaseOrderCount).Error
 	if err != nil {
 		return nil, err
 	}
 
 	var salesOrderCount int64
-	err = model.DB.Model(&model.SalesOrder{}).Count(&salesOrderCount).Error
+	err = l.svcCtx.DB.Model(&model.SalesOrder{}).Count(&salesOrderCount).Error
 	if err != nil {
 		return nil, err
 	}

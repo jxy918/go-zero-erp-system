@@ -1,0 +1,132 @@
+/* 
+ * 默认主题
+ * 原有 Element Plus 绿色主题
+ */
+
+/* 主色调覆盖 */
+:root {
+  --el-color-primary: #2c7d34;
+  --el-color-primary-light-3: rgba(44, 125, 52, 0.7);
+  --el-color-primary-light-5: rgba(44, 125, 52, 0.5);
+  --el-color-primary-light-7: rgba(44, 125, 52, 0.3);
+  --el-color-primary-dark-2: #236b2a;
+  
+  /* 全局主题变量 */
+  --primary-color: #2c7d34;
+  --primary-light: #4a9d56;
+  --primary-dark: #236b2a;
+  
+  --secondary-color: #909399;
+  --secondary-light: #b1b3b8;
+  --secondary-dark: #606266;
+  
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #409eff;
+  
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-sidebar: #304156;
+  --bg-card: #ffffff;
+  
+  --text-primary: #303133;
+  --text-secondary: #606266;
+  --text-muted: #909399;
+  --text-white: #ffffff;
+  
+  --border-color: #dcdfe6;
+  --border-light: #e4e7ed;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+  
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  
+  --font-sans: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* 链接 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-light);
+}
+
+/* 侧边栏菜单 */
+.el-menu {
+  border-right: none;
+}
+
+.el-menu-item.is-active {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.el-menu-item.is-active:hover {
+  color: white !important;
+}
+
+/* 表格 */
+.el-table {
+  border-radius: var(--radius-lg);
+}
+
+.el-table th {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* 按钮 */
+.el-button--primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.el-button--primary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+/* 卡片 */
+.el-card {
+  border-radius: var(--radius-lg);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c4cc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #909399;
+}

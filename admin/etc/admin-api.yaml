@@ -7,6 +7,76 @@ DB:
   DataSource: root:root@tcp(127.0.0.1:3306)/admin_erp_system?charset=utf8mb4&parseTime=True&loc=Local
 
 # JWT配置
+# ⚠️ 生产环境必须修改为强随机密钥（至少32字符）
+# 建议使用环境变量: ${JWT_SECRET}
 JWT:
-  AccessSecret: your-secret-key
+  AccessSecret: your-secret-key-change-in-production
   AccessExpire: 86400
+
+# CORS配置
+# 开发环境留空表示允许所有域名，生产环境请指定具体域名
+# 示例: AllowedOrigins: "http://localhost:3000,https://example.com"
+CORS:
+  AllowedOrigins: ""
+
+# ============================================
+# 监控与调试配置（go-zero 内置 DevServer）
+# ============================================
+# DevServer 提供以下端点：
+#   - /metrics        Prometheus 指标（CPU、内存、GC、HTTP 请求统计）
+#   - /debug/pprof/   pprof 性能分析（CPU/Memory/Goroutine/Block）
+#   - /healthz        健康检查端点
+#
+# ⚠️ 生产环境建议：
+#   - Host 改为 127.0.0.1 限制本地访问
+#   - 或通过反向代理限制访问来源
+#   - EnablePprof 可设为 false 关闭性能分析端点
+DevServer:
+  Enabled: true
+  Host: 127.0.0.1          # 仅允许本地访问
+  Port: 6060               # 监控端口
+  MetricsPath: /metrics    # Prometheus 指标路径
+  HealthPath: /healthz     # 健康检查路径
+  EnableMetrics: true      # 启用 Prometheus 指标
+  EnablePprof: true        # 启用 pprof 性能分析
+
+# 日志配置
+Log:
+  Mode: console            # console|file
+  Level: info              # debug|info|error|severe
+  Encoding: plain          # json|plain
+
+# ============================================
+# 分布式追踪配置（OpenTelemetry）
+# ============================================
+# ⚠️ 需要外部依赖：Jaeger 容器（tools/docker-compose-jaeger.yaml）
+# 关闭方式：注释掉整个 Telemetry 块或设置 Sampler: 0.0
+#
+# 支持多种 Batcher:
+#   - otlpgrpc: OTLP gRPC 协议（推荐，端口 4317）
+#   - otlphttp: OTLP HTTP 协议（端口 4318）
+#   - zipkin: Zipkin 协议（端口 9411）
+#   - file: 输出到文件（调试用）
+#
+# 采样率 Sampler:
+#   - 1.0 = 100% 采样（开发环境）
+#   - 0.1 = 10% 采样（生产环境）
+#   - 0.0 = 关闭采样（等同于禁用）
+#
+# ⚠️ 当前已关闭：需要外部 Jaeger 依赖
+# 如需启用，请启动 Jaeger 容器并取消注释下方配置
+# Telemetry:
+#   Name: admin-api
+#   Batcher: otlpgrpc              # 使用 OTLP gRPC 协议（推荐）
+#   Endpoint: http://localhost:4317 # Jaeger OTLP gRPC 端点
+#   Sampler: 1.0                   # 开发环境 100% 采样
+#   # Batcher: file                # 调试用：输出到文件
+#   # Endpoint: traces.json        # 调试用：输出文件路径
+
+# ============================================
+# 自定义业务指标配置
+# ============================================
+# 控制自定义业务指标中间件（登录计数、订单统计等）
+# DevServer 的 /metrics 端点始终可用（显示 Go 运行时指标）
+Metrics:
+  Enabled: true  # false 关闭自定义业务指标，仅保留基础运行时指标

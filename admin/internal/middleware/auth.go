@@ -11,6 +11,7 @@ import (
 	"myproject/admin/internal/svc"
 	"myproject/admin/internal/util"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -54,42 +55,58 @@ func AuthMiddleware(svc *svc.ServiceContext) func(next http.HandlerFunc) http.Ha
 				return
 			}
 
-			// 步骤4: 检查用户是否存在且状态正常
-			user, err := svc.UserModel.GetByID(claims.UserID)
-			if err != nil {
-				httpx.Error(w, errors.New("internal server error"))
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			if user == nil || user.Status == 0 {
-				httpx.Error(w, errors.New("unauthorized"))
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+		// 步骤4: 检查用户是否存在且状态正常
+		user, err := svc.UserModel.GetByID(claims.UserID)
+		if err != nil {
+			httpx.Error(w, errors.New("认证服务异常，请稍后重试"))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if user == nil {
+			httpx.Error(w, errors.New("用户不存在"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if user.Status == 0 {
+			httpx.Error(w, errors.New("账号已被禁用，请联系管理员"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
-			// 步骤5: 获取用户的角色ID（取第一个角色）
-			roleID := uint(0)
-			if len(user.Roles) > 0 {
-				roleID = user.Roles[0].ID
-			}
+		// 步骤5: 获取用户的角色ID和管理员状态
+		roleID := uint(0)
+		isAdmin := false
+		if len(user.Roles) > 0 {
+			roleID = user.Roles[0].ID
+			// 基于角色 code 判断是否为管理员，而非用户名
+			isAdmin = user.Roles[0].Code == "admin"
+		}
 
-			// 步骤6: 将用户信息存储到请求上下文，供后续逻辑使用
-			ctx := r.Context()
-			ctx = context.WithValue(ctx, util.UserIDKey, claims.UserID)               // 用户ID
-			ctx = context.WithValue(ctx, usernameKey, claims.Username)                // 用户名
-			ctx = context.WithValue(ctx, util.IsAdminKey, claims.Username == "admin") // 是否管理员
-			ctx = context.WithValue(ctx, util.RoleIDKey, roleID)                      // 角色ID
-			r = r.WithContext(ctx)
+		// 步骤6: 将用户信息存储到请求上下文，供后续逻辑使用
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, util.UserIDKey, claims.UserID)    // 用户ID
+		ctx = context.WithValue(ctx, usernameKey, claims.Username)      // 用户名
+		ctx = context.WithValue(ctx, util.IsAdminKey, isAdmin)          // 是否管理员（基于角色）
+		ctx = context.WithValue(ctx, util.RoleIDKey, roleID)            // 角色ID
+		r = r.WithContext(ctx)
 
-			// 步骤7: 异步记录用户活动日志（不阻塞请求）
-			activity := &model.Activity{
-				UserID:   claims.UserID,
-				Username: claims.Username,
-				Action:   "访问API",
-				URL:      r.URL.Path,
-				IP:       util.GetClientIP(r), // 获取真实客户端IP（支持代理）
-			}
-			go svc.ActivityModel.Create(activity)
+		// 步骤7: 异步记录用户活动日志（不阻塞请求）
+		activity := &model.Activity{
+			UserID:   claims.UserID,
+			Username: claims.Username,
+			Action:   "访问API",
+			URL:      r.URL.Path,
+			IP:       util.GetClientIP(r), // 获取真实客户端IP（支持代理）
+		}
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					// 记录 panic 但不影响主流程
+					logx.Errorf("Activity log panic: %v", r)
+				}
+			}()
+			svc.ActivityModel.Create(activity)
+		}()
 
 			// 步骤8: 继续处理下一个中间件或处理函数
 			next.ServeHTTP(w, r)
@@ -105,11 +122,11 @@ func PermissionMiddlewareByPath(svc *svc.ServiceContext) func(next http.HandlerF
 
 			// 从 context 获取用户ID
 			userID, ok := ctx.Value(util.UserIDKey).(uint)
-			if !ok || userID == 0 {
-				httpx.Error(w, errors.New("unauthorized"))
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+		if !ok || userID == 0 {
+			httpx.Error(w, errors.New("认证信息无效"))
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 			// 检查是否为管理员（管理员拥有所有权限）
 			isAdmin, ok := ctx.Value(util.IsAdminKey).(bool)
@@ -131,11 +148,11 @@ func PermissionMiddlewareByPath(svc *svc.ServiceContext) func(next http.HandlerF
 
 			// 根据用户ID获取用户的权限列表
 			userPermissions, err := svc.PermissionModel.GetAllByUserID(userID)
-			if err != nil {
-				httpx.Error(w, errors.New("internal server error"))
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
+		if err != nil {
+			httpx.Error(w, errors.New("权限服务异常，请稍后重试"))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 			// 检查是否包含所需的权限
 			hasPermission := false
